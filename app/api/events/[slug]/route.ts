@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { isCheckInOpen } from '@/lib/check-in-window';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +33,7 @@ export async function GET(request: Request, { params }: Params) {
   let isRegisteredByMe = false;
   let myRegistrationId: string | null = null;
   let myRegistrationStatus: string | null = null;
+  let checkInOpen = false;
 
   if (session?.user.role === 'MEMBER') {
     const existingRegistration = await prisma.registration.findUnique({
@@ -47,10 +49,12 @@ export async function GET(request: Request, { params }: Params) {
       isRegisteredByMe = true;
       myRegistrationId = existingRegistration.id;
       myRegistrationStatus = existingRegistration.status;
+      // Dihitung di server, sama persis dengan validasi di API check-in
+      checkInOpen = existingRegistration.status === 'REGISTERED' && isCheckInOpen(event);
     }
   }
 
   return NextResponse.json({
-    event: { ...event, isRegisteredByMe, myRegistrationId, myRegistrationStatus },
+    event: { ...event, isRegisteredByMe, myRegistrationId, myRegistrationStatus, checkInOpen },
   });
 }

@@ -60,6 +60,9 @@ export function useCheckIn() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-events'] });
       queryClient.invalidateQueries({ queryKey: ['my-badges'] });
+      // Biar halaman detail event & daftar peserta ikut segar setelah check-in
+      queryClient.invalidateQueries({ queryKey: ['public-events'] });
+      queryClient.invalidateQueries({ queryKey: ['public-event-participants'] });
     },
   });
 }

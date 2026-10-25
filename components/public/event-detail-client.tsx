@@ -6,12 +6,12 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { CalendarDays, MapPin, Users, Clock, Loader2 } from 'lucide-react';
+import { CalendarDays, MapPin, Users, Clock, Loader2, CheckCircle2 } from 'lucide-react';
 import { getEventDateTime } from '@/lib/get-event-datetime';
 import { toTitleCase } from '@/lib/format-name';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import { useEventDetail, useRegisterEvent } from '@/hooks/use-member-events';
-import { useCancelRegistration } from '@/hooks/use-my-events';
+import { useCancelRegistration, useCheckIn } from '@/hooks/use-my-events';
 import { usePublicEventParticipants } from '@/hooks/use-public-event-participants';
 import { AttendanceBadgeIcon } from '@/components/member/attendance-badge';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ export function EventDetailClient() {
   const { data: event, isLoading } = useEventDetail(slug);
   const registerEvent = useRegisterEvent();
   const cancelRegistration = useCancelRegistration();
+  const checkIn = useCheckIn();
 
   const handleCancel = () => {
     if (!event?.myRegistrationId) return;
@@ -38,6 +39,17 @@ export function EventDetailClient() {
     cancelRegistration.mutate(event.myRegistrationId, {
       onSuccess: () => {
         toast.success('Pendaftaran berhasil dibatalkan');
+      },
+      onError: (error) => toast.error(error.message),
+    });
+  };
+  const handleCheckIn = () => {
+    if (!event) return;
+
+    checkIn.mutate(event.id, {
+      onSuccess: (result) => {
+        toast.success('Check-in berhasil! Selamat berlari 🏃');
+        if (result.newBadge) toast.success(`Lencana baru: ${result.newBadge.name} 🎉`);
       },
       onError: (error) => toast.error(error.message),
     });
@@ -160,6 +172,19 @@ export function EventDetailClient() {
             'Daftar Event'
           )}
         </Button>
+
+        {session && event.checkInOpen && (
+          <Button type="button" size="lg" className="w-full" onClick={handleCheckIn} disabled={checkIn.isPending}>
+            {checkIn.isPending ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <>
+                <CheckCircle2 size={16} />
+                Check-in Sekarang
+              </>
+            )}
+          </Button>
+        )}
 
         {event.isRegisteredByMe && event.myRegistrationStatus === 'REGISTERED' && !isPastEvent && (
           <Button type="button" variant="outline" className="w-full text-destructive hover:text-destructive" onClick={handleCancel} disabled={cancelRegistration.isPending}>

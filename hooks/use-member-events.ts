@@ -18,6 +18,7 @@ export interface PublicEventDetail extends PublicEvent {
   description: string;
   isRegisteredByMe: boolean;
   myRegistrationId: string | null;
+  checkInOpen: boolean;
   myRegistrationStatus: 'REGISTERED' | 'CHECKED_IN' | 'ABSENT' | null;
   route: {
     points: unknown;
