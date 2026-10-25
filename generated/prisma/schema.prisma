@@ -1,0 +1,267 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RegistrationStatus {
+  REGISTERED
+  CHECKED_IN
+  ABSENT
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Member {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  phone     String?
+  password  String?
+  birthDate DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  bio              String?
+  avatarUrl        String?
+  instagram        String?
+  strava           String?
+  tiktok           String?
+  isProfileHidden  Boolean @default(false)
+  shareCode        String? @unique
+  isSharingEnabled Boolean @default(false)
+
+  registrations Registration[]
+  orders        Order[]
+  resetTokens   PasswordResetToken[]
+  profileViews  ProfileView[]
+
+  @@map("members")
+}
+
+model ProfileView {
+  id         String   @id @default(cuid())
+  memberId   String
+  viewerHash String
+  day        String
+  createdAt  DateTime @default(now())
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, viewerHash, day])
+  @@index([memberId, createdAt])
+  @@map("profile_views")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  memberId  String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@map("password_reset_tokens")
+}
+
+model Event {
+  id                 String    @id @default(cuid())
+  name               String
+  slug               String    @unique
+  description        String
+  coverImageUrl      String?
+  eventDate          DateTime
+  eventTime          String
+  meetingPoint       String
+  quota              Int
+  isPublished        Boolean   @default(false)
+  registrationClosed Boolean   @default(false)
+  // Batas akhir check-in yang diperpanjang admin. Null = default (jam mulai + 2 jam)
+  checkInUntil       DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  registrations Registration[]
+  route         Route?
+  album         Album?
+
+  // Query paling sering: list event public difilter isPublished, diurutin eventDate
+  @@index([isPublished, eventDate])
+  @@map("events")
+}
+
+model Registration {
+  id           String             @id @default(cuid())
+  status       RegistrationStatus @default(REGISTERED)
+  registeredAt DateTime           @default(now())
+  checkedInAt  DateTime?
+
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, eventId])
+  // Compound unique di atas ngebantu query yang mulai dari memberId,
+  // tapi query "semua peserta di 1 event" (participant management, dashboard
+  // count) filter dari eventId doang -> butuh index terpisah
+  @@index([eventId])
+  @@map("registrations")
+}
+
+model Route {
+  id          String   @id @default(cuid())
+  points      Json // array koordinat [{ lat, lng }, ...] hasil klik manual di Leaflet
+  distanceKm  Float // input manual oleh admin
+  startLabel  String?
+  finishLabel String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  eventId String @unique
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("routes")
+}
+
+model Album {
+  id            String   @id @default(cuid())
+  name          String // misal: "Kawan Pelarian: Pelan-Pelan Lari Vol#2"
+  coverPhotoUrl String?
+  driveLink     String? // link Google Drive, buat foto full yang gak semuanya di-upload ke Cloudinary
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  eventId String @unique
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  photos Photo[]
+
+  @@map("albums")
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  url       String // URL hasil upload Cloudinary (WebP)
+  createdAt DateTime @default(now())
+
+  albumId String
+  album   Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  @@index([albumId])
+  @@map("photos")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String // misal: "Jersey Lengan Pendek"
+  slug        String   @unique // dipakai di URL publik: /merchandise/jersey-lengan-pendek
+  description String?
+  price       Int
+  imageUrl    String? // gambar cover/thumbnail, dipake di grid katalog
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  variants Variant[]
+  images   ProductImage[] // gambar tambahan buat carousel di halaman detail
+
+  @@index([isActive])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  url       String
+  order     Int      @default(0) // urutan tampil di carousel
+  createdAt DateTime @default(now())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+model Variant {
+  id    String @id @default(cuid())
+  size  String // "S", "M", "L", "XL"
+  stock Int    @default(0)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  orderItems OrderItem[]
+
+  @@unique([productId, size])
+  @@map("variants")
+}
+
+enum OrderStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  totalAmount Int
+  proofUrl    String? // bukti transfer, upload Cloudinary
+  status      OrderStatus @default(PENDING)
+  note        String? // catatan member, misal alamat/opsi ambil di lokasi
+  batch       Int         @default(1) // batch pre-order saat pesanan dibuat
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id])
+
+  items OrderItem[]
+
+  @@index([memberId])
+  @@index([status])
+  @@index([batch])
+  @@map("orders")
+}
+
+model OrderItem {
+  id       String @id @default(cuid())
+  quantity Int
+  price    Int // snapshot harga variant saat order dibuat
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  variantId String
+  variant   Variant @relation(fields: [variantId], references: [id])
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+// Setting global toko (1 baris, id "main"). Dipakai buat buka/tutup pre-order per batch.
+model StoreSetting {
+  id           String   @id
+  ordersOpen   Boolean  @default(true)
+  currentBatch Int      @default(1)
+  updatedAt    DateTime @updatedAt
+
+  @@map("store_settings")
+}

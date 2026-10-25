@@ -1,0 +1,187 @@
+/* app/globals.css */
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primaryBlack: var(--primary-black);
+  --color-primaryWhite: var(--primary-white);
+  --color-brandNavy: var(--brand-navy);
+  --color-brandYellow: var(--brand-yellow);
+  --color-brandLime: var(--brand-lime);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+  --font-title: var(--font-high-cruiser, var(--font-geist-sans));
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Animasi slider logo sponsor (harus di luar .dark / :root) */
+@theme {
+  --animate-marquee: marquee 40s linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+}
+
+:root {
+  --brand-navy: #162349;
+  --brand-yellow: #fbdc00;
+  --brand-lime: #bcf046;
+  --primary-black: var(--brand-navy);
+  --primary-white: #ffffff;
+
+  --background: var(--primary-white);
+  --foreground: var(--primary-black);
+  --card: var(--primary-white);
+  --card-foreground: var(--primary-black);
+  --popover: var(--primary-white);
+  --popover-foreground: var(--primary-black);
+  --primary: var(--brand-yellow);
+  --primary-foreground: var(--brand-navy);
+  --secondary: #eceff7;
+  --secondary-foreground: var(--primary-black);
+  --muted: #f1f3f9;
+  --muted-foreground: #5a6482;
+  --accent: #ecfac9;
+  --accent-foreground: var(--primary-black);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #e1e5ef;
+  --input: #e1e5ef;
+  --ring: #4a5679;
+  --radius: 0.5rem;
+  --sidebar: #f6f8fc;
+  --sidebar-foreground: var(--primary-black);
+  --sidebar-primary: var(--brand-navy);
+  --sidebar-primary-foreground: var(--primary-white);
+  --sidebar-accent: #ecfac9;
+  --sidebar-accent-foreground: var(--primary-black);
+  --sidebar-border: #e1e5ef;
+  --sidebar-ring: #4a5679;
+}
+
+.dark {
+  --background: var(--brand-navy);
+  --foreground: var(--primary-white);
+  --card: #1d2b57;
+  --card-foreground: var(--primary-white);
+  --popover: #1d2b57;
+  --popover-foreground: var(--primary-white);
+  --primary: var(--brand-yellow);
+  --primary-foreground: var(--brand-navy);
+  --secondary: #26376b;
+  --secondary-foreground: var(--primary-white);
+  --muted: #223260;
+  --muted-foreground: #a5aecb;
+  --accent: rgba(188, 240, 70, 0.14);
+  --accent-foreground: var(--primary-white);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.16);
+  --ring: #7280a8;
+  --sidebar: #0f1936;
+  --sidebar-foreground: var(--primary-white);
+  --sidebar-primary: var(--brand-yellow);
+  --sidebar-primary-foreground: var(--brand-navy);
+  --sidebar-accent: rgba(188, 240, 70, 0.14);
+  --sidebar-accent-foreground: var(--primary-white);
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-ring: #7280a8;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Fix konflik Tailwind preflight (img max-width: 100%) dengan tile Leaflet */
+.leaflet-container img {
+  max-width: none !important;
+}
+
+.leaflet-container {
+  font-family: var(--font-sans);
+}
+
+/* Cap z-index Leaflet panes/controls biar gak nembus di atas sidebar mobile
+   (Sheet/Dialog shadcn biasanya z-50), default Leaflet bisa sampai z-index 1000 */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 10 !important;
+}
+
+.leaflet-control {
+  z-index: 15 !important;
+}
+
+/* Teks outline besar di footer, warna ngikut tema (light/dark) via currentColor.
+   Fallback ke teks solid transparan-tipis kalau browser gak support text-stroke (Firefox lama). */
+.footer-outline-text {
+  color: var(--primary-black);
+  opacity: 0.12;
+}
+
+.dark .footer-outline-text {
+  color: var(--primary-white);
+}
+
+@supports (-webkit-text-stroke: 1px black) {
+  .footer-outline-text {
+    -webkit-text-stroke: 1.5px var(--primary-black);
+    color: transparent;
+    opacity: 1;
+  }
+
+  .dark .footer-outline-text {
+    -webkit-text-stroke-color: var(--primary-white);
+  }
+}
