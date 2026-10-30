@@ -9,13 +9,11 @@ const menuItems = [
 ];
 
 const socialLinks = [
-  { name: 'Instagram', url: 'https://instagram.com/kawanpelarian.id' },
-  { name: 'Threads', url: 'https://threads.net/@kawanpelarian.id' },
-  { name: 'TikTok', url: 'https://tiktok.com/@kawanpelarian.id' },
+  { name: 'Instagram', url: 'https://www.instagram.com/kawanpelarian.official' },
+  { name: 'Threads', url: 'https://threads.net/@kawanpelarian.official' },
 ];
 
 const contactLinks = [
-  { name: 'Email', url: 'mailto:kawanpelarian04@gmail.com' },
   { name: 'Admin WhatsApp 1', url: 'https://wa.me/6282283893133' },
   { name: 'Admin WhatsApp 2', url: 'https://wa.me/6281275826699' },
 ];
