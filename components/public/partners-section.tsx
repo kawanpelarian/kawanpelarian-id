@@ -1,18 +1,15 @@
 // components/public/partners-section.tsx
 import Image from 'next/image';
-import { partners, type Partner } from '@/lib/partners';
+import { getPartners, type Partner } from '@/lib/partners';
 import { cn } from '@/lib/utils';
 
-// Minimal jumlah logo per "grup" supaya selalu lebih lebar dari layar,
-// kalau partner masih sedikit daftarnya diulang otomatis.
 const MIN_ITEMS_PER_GROUP = 8;
-// Detik yang dibutuhkan untuk melewatkan 1 logo. Makin kecil = makin cepat.
 const SECONDS_PER_LOGO = 4;
 
 function PartnerLogo({ partner }: { partner: Partner }) {
   const card = (
-    <div className="relative h-20 w-40 shrink-0 overflow-hidden rounded-xl border border-border bg-white">
-      <Image src={partner.logo} alt={partner.name} fill sizes="160px" className="object-contain p-3" />
+    <div className="relative h-28 w-56 shrink-0 overflow-hidden rounded-xl border border-border bg-[#e6e9f1] dark:border-white/15 dark:bg-card">
+      <Image src={partner.logo} alt={partner.name} fill sizes="224px" className="object-contain p-1.5" />
     </div>
   );
 
@@ -25,7 +22,9 @@ function PartnerLogo({ partner }: { partner: Partner }) {
   );
 }
 
-export function PartnersSection() {
+export async function PartnersSection() {
+  const partners = await getPartners();
+
   if (partners.length === 0) return null;
 
   const repeat = Math.max(1, Math.ceil(MIN_ITEMS_PER_GROUP / partners.length));
@@ -39,7 +38,6 @@ export function PartnersSection() {
         <p className="mt-2 text-[15px] text-muted-foreground">Terima kasih untuk semua yang sudah mendukung Kawan Pelarian</p>
       </div>
 
-      {/* Fade di kiri-kanan biar logo masuk/keluar halus. Berhenti saat di-hover. */}
       <div className="group relative overflow-hidden mask-[linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] motion-reduce:overflow-x-auto">
         <div className="flex w-max">
           {[0, 1].map((copy) => (
