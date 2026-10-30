@@ -8,6 +8,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { Providers } from '@/components/providers';
 import { Toaster } from '@/components/ui/sonner';
 import { siteConfig } from '@/lib/site-config';
+import { highCruiser } from '@/app/fonts';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -71,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" suppressHydrationWarning className={cn('h-full', 'antialiased', geistSans.variable, geistMono.variable, 'font-sans')}>
+    <html lang="id" suppressHydrationWarning className={cn('h-full', 'antialiased', geistSans.variable, geistMono.variable, highCruiser.variable, 'font-sans')}>
       <body className="min-h-full flex flex-col">
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>

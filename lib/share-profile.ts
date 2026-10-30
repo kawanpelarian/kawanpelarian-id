@@ -94,10 +94,17 @@ async function readGeistFonts() {
   try {
     const dir = join(process.cwd(), 'assets/fonts');
     const [regular, bold] = await Promise.all([readFile(join(dir, 'Geist-Regular.ttf')), readFile(join(dir, 'Geist-Bold.ttf'))]);
-    return [
+    const fonts = [
       { name: 'Geist', data: regular, weight: 400 as const, style: 'normal' as const },
       { name: 'Geist', data: bold, weight: 700 as const, style: 'normal' as const },
     ];
+
+    try {
+      const title = await readFile(join(dir, 'OldportScript.otf'));
+      fonts.push({ name: 'OldportScript', data: title, weight: 400 as const, style: 'normal' as const });
+    } catch {}
+
+    return fonts;
   } catch {
     return undefined;
   }

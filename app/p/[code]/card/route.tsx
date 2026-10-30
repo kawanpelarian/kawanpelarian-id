@@ -8,6 +8,9 @@ import { getSharedProfile, getInitials, loadAvatarDataUri, loadGeistFonts, nameF
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+// Font script tampak lebih kecil dari Geist di ukuran yang sama, naikkan/turunkan di sini
+const TITLE_FONT_SCALE = 1.15;
+
 const NAVY = '#162349';
 const YELLOW = '#FBDC00';
 const LIME = '#BCF046';
@@ -224,8 +227,9 @@ export async function GET(request: Request, { params }: Params) {
               columnGap: 22,
               maxWidth: 900,
               marginTop: 36,
-              fontSize: nameFontSize(profile.publicName, 84),
-              fontWeight: 700,
+              fontFamily: '"OldportScript", "Geist"',
+              fontSize: nameFontSize(profile.publicName, 84 * TITLE_FONT_SCALE),
+              fontWeight: 400,
               lineHeight: 1.1,
             }}
           >
