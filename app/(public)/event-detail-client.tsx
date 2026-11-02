@@ -4,13 +4,14 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { toast } from 'sonner';
-import { CalendarDays, MapPin, Users, Clock, Loader2 } from 'lucide-react';
+import { CalendarDays, MapPin, Users, Clock, Loader2, CheckCircle2, BadgeCheck, UserCheck } from 'lucide-react';
 import { getEventDateTime } from '@/lib/get-event-datetime';
 import { toTitleCase } from '@/lib/format-name';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import { useEventDetail, useRegisterEvent } from '@/hooks/use-member-events';
-import { useCancelRegistration } from '@/hooks/use-my-events';
+import { useCancelRegistration, useCheckIn } from '@/hooks/use-my-events';
 import { usePublicEventParticipants } from '@/hooks/use-public-event-participants';
 import { AttendanceBadgeIcon } from '@/components/member/attendance-badge';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ export function EventDetailClient() {
   const { data: event, isLoading } = useEventDetail(slug);
   const registerEvent = useRegisterEvent();
   const cancelRegistration = useCancelRegistration();
+  const checkIn = useCheckIn();
 
   const handleCancel = () => {
     if (!event?.myRegistrationId) return;
@@ -37,6 +39,17 @@ export function EventDetailClient() {
     cancelRegistration.mutate(event.myRegistrationId, {
       onSuccess: () => {
         toast.success('Pendaftaran berhasil dibatalkan');
+      },
+      onError: (error) => toast.error(error.message),
+    });
+  };
+  const handleCheckIn = () => {
+    if (!event) return;
+
+    checkIn.mutate(event.id, {
+      onSuccess: (result) => {
+        toast.success('Check-in berhasil! Selamat berlari 🏃');
+        if (result.newBadge) toast.success(`Lencana baru: ${result.newBadge.name} 🎉`);
       },
       onError: (error) => toast.error(error.message),
     });
@@ -95,6 +108,8 @@ export function EventDetailClient() {
 
   const isFull = event._count.registrations >= event.quota;
   const isPastEvent = getEventDateTime(event.eventDate, event.eventTime) < new Date();
+  const isCheckedIn = event.myRegistrationStatus === 'CHECKED_IN';
+  const attendedTotal = participants?.filter((p) => p.status === 'CHECKED_IN').length ?? 0;
 
   return (
     <EventPageChrome>
@@ -136,6 +151,12 @@ export function EventDetailClient() {
               {event._count.registrations}/{event.quota} peserta
             </span>
           </div>
+          {(attendedTotal > 0 || isPastEvent) && !isParticipantsLoading && (
+            <div className="flex items-center gap-3 text-sm">
+              <UserCheck size={16} className="text-muted-foreground" />
+              <span>{attendedTotal} peserta hadir</span>
+            </div>
+          )}
           {event.route && (
             <div className="flex items-center gap-3 text-sm">
               <span className="text-muted-foreground">Jarak:</span>
@@ -144,11 +165,20 @@ export function EventDetailClient() {
           )}
         </div>
 
+        {isCheckedIn && (
+          <div className="flex items-center gap-3 rounded-xl border border-brandLime bg-brandLime/20 p-4 text-sm font-medium text-primaryBlack dark:text-primaryWhite">
+            <BadgeCheck size={20} className="shrink-0 text-primaryBlack dark:text-brandLime" />
+            Kamu sudah check-in di event ini. Selamat berlari!
+          </div>
+        )}
+
         <Button type="button" size="lg" className="w-full" onClick={handleRegister} disabled={registerEvent.isPending || isFull || event.isRegisteredByMe || isPastEvent || event.registrationClosed}>
           {registerEvent.isPending ? (
             <Loader2 size={16} className="animate-spin" />
           ) : isPastEvent ? (
             'Event Sudah Berlalu'
+          ) : isCheckedIn ? (
+            'Kamu Sudah Check-in'
           ) : event.isRegisteredByMe ? (
             'Kamu Sudah Mendaftar Event Ini'
           ) : event.registrationClosed ? (
@@ -159,6 +189,19 @@ export function EventDetailClient() {
             'Daftar Event'
           )}
         </Button>
+
+        {session && event.checkInOpen && (
+          <Button type="button" size="lg" className="w-full" onClick={handleCheckIn} disabled={checkIn.isPending}>
+            {checkIn.isPending ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <>
+                <CheckCircle2 size={16} />
+                Check-in Sekarang
+              </>
+            )}
+          </Button>
+        )}
 
         {event.isRegisteredByMe && event.myRegistrationStatus === 'REGISTERED' && !isPastEvent && (
           <Button type="button" variant="outline" className="w-full text-destructive hover:text-destructive" onClick={handleCancel} disabled={cancelRegistration.isPending}>
@@ -199,7 +242,13 @@ export function EventDetailClient() {
                     <TableRow key={participant.id}>
                       <TableCell className="text-muted-foreground">{index + 1}</TableCell>
                       <TableCell className="font-medium text-primaryBlack dark:text-primaryWhite">
-                        {toTitleCase(participant.member.name)}
+                        {participant.profileId ? (
+                          <Link href={`/members/${participant.profileId}`} className="hover:underline">
+                            {toTitleCase(participant.member.name)}
+                          </Link>
+                        ) : (
+                          toTitleCase(participant.member.name)
+                        )}
                         <AttendanceBadgeIcon attendedCount={participant.attendedCount} />
                       </TableCell>
                       <TableCell className="text-right">
