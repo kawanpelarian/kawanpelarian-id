@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { CalendarDays, MapPin, Users, Clock, Loader2, CheckCircle2 } from 'lucide-react';
+import { CalendarDays, MapPin, Users, Clock, Loader2, CheckCircle2, BadgeCheck, UserCheck } from 'lucide-react';
 import { getEventDateTime } from '@/lib/get-event-datetime';
 import { toTitleCase } from '@/lib/format-name';
 import { sanitizeHtml } from '@/lib/sanitize-html';
@@ -108,6 +108,8 @@ export function EventDetailClient() {
 
   const isFull = event._count.registrations >= event.quota;
   const isPastEvent = getEventDateTime(event.eventDate, event.eventTime) < new Date();
+  const isCheckedIn = event.myRegistrationStatus === 'CHECKED_IN';
+  const attendedTotal = participants?.filter((p) => p.status === 'CHECKED_IN').length ?? 0;
 
   return (
     <EventPageChrome>
@@ -157,11 +159,20 @@ export function EventDetailClient() {
           )}
         </div>
 
+        {isCheckedIn && (
+          <div className="flex items-center gap-3 rounded-xl border border-brandLime bg-brandLime/20 p-4 text-sm font-medium text-primaryBlack dark:text-primaryWhite">
+            <BadgeCheck size={20} className="shrink-0 text-primaryBlack dark:text-brandLime" />
+            Kamu sudah check-in di event ini. Selamat berlari!
+          </div>
+        )}
+
         <Button type="button" size="lg" className="w-full" onClick={handleRegister} disabled={registerEvent.isPending || isFull || event.isRegisteredByMe || isPastEvent || event.registrationClosed}>
           {registerEvent.isPending ? (
             <Loader2 size={16} className="animate-spin" />
           ) : isPastEvent ? (
             'Event Sudah Berlalu'
+          ) : isCheckedIn ? (
+            'Kamu Sudah Check-in'
           ) : event.isRegisteredByMe ? (
             'Kamu Sudah Mendaftar Event Ini'
           ) : event.registrationClosed ? (
@@ -195,6 +206,12 @@ export function EventDetailClient() {
         <div className="space-y-3">
           <h2 className="font-title text-lg font-bold uppercase italic text-primaryBlack dark:text-primaryWhite">Yang Sudah Daftar</h2>
           <p className="text-sm text-muted-foreground">{event._count.registrations} kawan udah siap lari bareng, gabung juga yuk!</p>
+          {(attendedTotal > 0 || isPastEvent) && !isParticipantsLoading && (
+            <p className="flex items-center gap-1.5 text-sm font-medium text-primaryBlack dark:text-primaryWhite">
+              <UserCheck size={14} />
+              {attendedTotal} peserta hadir
+            </p>
+          )}
 
           <div className="overflow-hidden rounded-xl border border-border">
             <Table>
