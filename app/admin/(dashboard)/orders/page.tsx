@@ -12,6 +12,7 @@ import { useClientPagination } from '@/hooks/use-client-pagination';
 import { TablePagination } from '@/components/admin/table-pagination';
 import { SortDropdown, type SortOption } from '@/components/admin/sort-dropdown';
 import { sortData } from '@/lib/sort-data';
+import { AnnounceOrdersDialog } from '@/components/admin/announce-orders-dialog';
 import { exportOrdersToExcel, exportOrdersToPDF, exportSizeRecapToPDF, exportSizeRecapToWord } from '@/lib/export-orders';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -120,22 +121,25 @@ function AdminOrdersContent() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-primaryBlack dark:text-primaryWhite">Kelola Pesanan</h1>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="outline" size="sm" disabled={isExporting}>
-                {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-                Export ke...
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleExport('excel')}>Excel (.xlsx)</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport('pdf-recap')}>PDF Rekap Konveksi</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport('word-recap')}>Word Rekap Konveksi (.docx)</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <AnnounceOrdersDialog batch={selectedBatch} batchLabel={batchLabel} />
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="outline" size="sm" disabled={isExporting}>
+                  {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                  Export ke...
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleExport('excel')}>Excel (.xlsx)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('pdf-recap')}>PDF Rekap Konveksi</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('word-recap')}>Word Rekap Konveksi (.docx)</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border p-4">

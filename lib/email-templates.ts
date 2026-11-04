@@ -192,3 +192,40 @@ export function getResetPasswordEmailHtml({ memberName, resetUrl, expiresInMinut
 
   return emailWrapper({ badgeText: 'Keamanan Akun', eventName: 'Reset Password', bodyHtml: body });
 }
+
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+interface OrderAnnouncementEmailOptions {
+  memberName: string;
+  eventName: string;
+  eventInfo?: string;
+  message: string;
+}
+
+export function getOrderAnnouncementEmailHtml({ memberName, eventName, eventInfo, message }: OrderAnnouncementEmailOptions): string {
+  const body = `
+    <p style="margin: 0 0 16px; font-size: 15px;">
+      Halo <strong>${escapeHtml(memberName)}</strong>,
+    </p>
+
+    <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.6;">
+      ${escapeHtml(message).replace(/\n/g, '<br />')}
+    </p>
+
+    ${eventInfo ? `<p style="margin: 0 0 20px; font-size: 14px; font-weight: 600; text-align: center; background: #f5f5f5; padding: 12px; border-radius: 8px;">${escapeHtml(eventInfo)}</p>` : ''}
+
+    <div style="text-align: center;">
+      <a href="${siteConfig.url}/events" style="display: inline-block; background: #fbdc00; color: #162349; font-size: 14px; font-weight: 700; padding: 12px 24px; border-radius: 999px; text-decoration: none;">
+        Lihat Detail Event
+      </a>
+    </div>
+  `;
+
+  return emailWrapper({
+    badgeText: 'Pengumuman',
+    eventName: escapeHtml(eventName),
+    bodyHtml: body,
+  });
+}

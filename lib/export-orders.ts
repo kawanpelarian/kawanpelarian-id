@@ -153,11 +153,11 @@ export async function exportOrdersToPDF(orders: AdminOrder[], batchLabel?: strin
 
   autoTable(doc, {
     startY: afterRecapY + 14,
-    head: [['Pemesan', 'Item', 'Total', 'Status', 'Tanggal']],
-    body: orders.map((order) => [order.member.name, summarizeItems(order), `Rp${order.totalAmount.toLocaleString('id-ID')}`, statusLabel[order.status], formatDate(order.createdAt)]),
+    head: [['Pemesan', 'No. HP', 'Item', 'Total', 'Status', 'Tanggal']],
+    body: orders.map((order) => [order.member.name, order.member.phone ?? '-', summarizeItems(order), `Rp${order.totalAmount.toLocaleString('id-ID')}`, statusLabel[order.status], formatDate(order.createdAt)]),
     styles: { fontSize: 8, cellPadding: 3 },
     headStyles: { fillColor: [22, 35, 73] },
-    columnStyles: { 1: { cellWidth: 60 } },
+    columnStyles: { 2: { cellWidth: 55 } },
   });
 
   doc.save(`pesanan-kawan-pelarian${fileSuffix(batchLabel)}-${Date.now()}.pdf`);
