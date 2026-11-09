@@ -21,7 +21,7 @@ export async function GET(request: Request, { params }: Params) {
         include: { photos: true },
       },
       _count: {
-        select: { registrations: true },
+        select: { registrations: { where: { paymentStatus: { not: 'REJECTED' } } } },
       },
     },
   });
@@ -34,6 +34,9 @@ export async function GET(request: Request, { params }: Params) {
   let myRegistrationId: string | null = null;
   let myRegistrationStatus: string | null = null;
   let checkInOpen = false;
+  let myPaymentStatus: string | null = null;
+  let myPaymentRejectReason: string | null = null;
+  let myProofUrl: string | null = null;
 
   if (session?.user.role === 'MEMBER') {
     const existingRegistration = await prisma.registration.findUnique({
@@ -50,11 +53,14 @@ export async function GET(request: Request, { params }: Params) {
       myRegistrationId = existingRegistration.id;
       myRegistrationStatus = existingRegistration.status;
       // Dihitung di server, sama persis dengan validasi di API check-in
-      checkInOpen = existingRegistration.status === 'REGISTERED' && isCheckInOpen(event);
+      myPaymentStatus = existingRegistration.paymentStatus;
+      myPaymentRejectReason = existingRegistration.paymentRejectReason;
+      myProofUrl = existingRegistration.proofUrl;
+      checkInOpen = existingRegistration.status === 'REGISTERED' && existingRegistration.paymentStatus === 'VERIFIED' && isCheckInOpen(event);
     }
   }
 
   return NextResponse.json({
-    event: { ...event, isRegisteredByMe, myRegistrationId, myRegistrationStatus, checkInOpen },
+    event: { ...event, isRegisteredByMe, myRegistrationId, myRegistrationStatus, myPaymentStatus, myPaymentRejectReason, myProofUrl, checkInOpen },
   });
 }

@@ -1,3 +1,4 @@
+// app/api/admin/registrations/route.ts
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -19,7 +20,11 @@ export async function POST(request: Request) {
 
     const event = await prisma.event.findUnique({
       where: { id: eventId },
-      include: { _count: { select: { registrations: true } } },
+      include: {
+        _count: {
+          select: { registrations: { where: { paymentStatus: { not: 'REJECTED' } } } },
+        },
+      },
     });
 
     if (!event) {

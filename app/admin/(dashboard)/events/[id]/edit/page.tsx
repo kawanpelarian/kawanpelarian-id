@@ -42,6 +42,7 @@ export default function EditEventPage() {
       eventTime: event.eventTime,
       meetingPoint: event.meetingPoint,
       quota: event.quota,
+      price: event.price,
     });
 
     if (event.route) {

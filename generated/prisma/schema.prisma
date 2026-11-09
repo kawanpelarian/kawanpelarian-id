@@ -15,6 +15,12 @@ enum RegistrationStatus {
   ABSENT
 }
 
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
 model Admin {
   id        String   @id @default(cuid())
   name      String
@@ -90,6 +96,8 @@ model Event {
   eventTime          String
   meetingPoint       String
   quota              Int
+  // Harga tiket dalam Rupiah. 0 = gratis
+  price              Int       @default(0)
   isPublished        Boolean   @default(false)
   registrationClosed Boolean   @default(false)
   // Batas akhir check-in yang diperpanjang admin. Null = default (jam mulai + 2 jam)
@@ -112,6 +120,13 @@ model Registration {
   registeredAt DateTime           @default(now())
   checkedInAt  DateTime?
 
+  // Pembayaran (hanya relevan untuk event berbayar). Default VERIFIED supaya
+  // event gratis dan data lama tidak berubah perilakunya
+  paymentStatus       PaymentStatus @default(VERIFIED)
+  amountPaid          Int           @default(0)
+  proofUrl            String?
+  paymentRejectReason String?
+
   memberId String
   member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
@@ -123,6 +138,7 @@ model Registration {
   // tapi query "semua peserta di 1 event" (participant management, dashboard
   // count) filter dari eventId doang -> butuh index terpisah
   @@index([eventId])
+  @@index([eventId, paymentStatus])
   @@map("registrations")
 }
 

@@ -57,11 +57,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Kamu sudah check-in sebelumnya' }, { status: 409 });
     }
 
+    if (registration.paymentStatus !== 'VERIFIED') {
+      return NextResponse.json({ error: 'Pembayaran kamu belum diverifikasi admin' }, { status: 403 });
+    }
+
     const now = new Date();
     const { opensAt, closesAt } = getCheckInWindow(registration.event);
 
     if (now < opensAt) {
-      return NextResponse.json({ error: 'Check-in hanya bisa dilakukan pada hari-H event' }, { status: 400 });
+      return NextResponse.json({ error: 'Check-in dibuka 30 menit sebelum acara dimulai' }, { status: 400 });
     }
 
     if (now > closesAt) {

@@ -6,16 +6,17 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { CalendarDays, MapPin, Users, Clock, Loader2, CheckCircle2, BadgeCheck, UserCheck } from 'lucide-react';
+import { CalendarDays, MapPin, Users, Clock, Loader2, CheckCircle2, BadgeCheck, UserCheck, Wallet, Hourglass, XCircle } from 'lucide-react';
 import { getEventDateTime } from '@/lib/get-event-datetime';
 import { toTitleCase } from '@/lib/format-name';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { useEventDetail, useRegisterEvent } from '@/hooks/use-member-events';
+import { useEventDetail, useRegisterEvent, useResubmitProof } from '@/hooks/use-member-events';
 import { useCancelRegistration, useCheckIn } from '@/hooks/use-my-events';
 import { usePublicEventParticipants } from '@/hooks/use-public-event-participants';
 import { AttendanceBadgeIcon } from '@/components/member/attendance-badge';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { EventPaymentForm } from '@/components/public/event-payment-form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EventPageChrome } from '@/components/shared/event-page-chrome';
 import { CopyLinkButton } from '@/components/shared/copy-link-button';
@@ -30,6 +31,7 @@ export function EventDetailClient() {
 
   const { data: event, isLoading } = useEventDetail(slug);
   const registerEvent = useRegisterEvent();
+  const resubmitProof = useResubmitProof();
   const cancelRegistration = useCancelRegistration();
   const checkIn = useCheckIn();
 
@@ -56,7 +58,21 @@ export function EventDetailClient() {
   };
   const { data: participants, isLoading: isParticipantsLoading } = usePublicEventParticipants(slug);
 
-  const handleRegister = () => {
+  const isPaid = (event?.price ?? 0) > 0;
+
+  const handleResubmit = (proof: File) => {
+    if (!event?.myRegistrationId) return;
+
+    resubmitProof.mutate(
+      { registrationId: event.myRegistrationId, proof },
+      {
+        onSuccess: () => toast.success('Bukti transfer terkirim, tunggu verifikasi admin ya'),
+        onError: (error) => toast.error(error.message),
+      },
+    );
+  };
+
+  const handleRegister = (proof?: File) => {
     if (!session) {
       toast.info('Masuk dulu buat daftar event ini');
       router.push('/login');
@@ -75,13 +91,16 @@ export function EventDetailClient() {
       return;
     }
 
-    registerEvent.mutate(event.id, {
-      onSuccess: () => {
-        toast.success('Berhasil daftar! Sampai jumpa di lokasi 🏃');
-        router.push('/my-events');
+    registerEvent.mutate(
+      { eventId: event.id, proof },
+      {
+        onSuccess: () => {
+          toast.success(isPaid ? 'Bukti transfer terkirim, tunggu verifikasi admin ya' : 'Berhasil daftar! Sampai jumpa di lokasi 🏃');
+          router.push('/my-events');
+        },
+        onError: (error) => toast.error(error.message),
       },
-      onError: (error) => toast.error(error.message),
-    });
+    );
   };
 
   if (isLoading) {
@@ -109,6 +128,9 @@ export function EventDetailClient() {
   const isFull = event._count.registrations >= event.quota;
   const isPastEvent = getEventDateTime(event.eventDate, event.eventTime) < new Date();
   const isCheckedIn = event.myRegistrationStatus === 'CHECKED_IN';
+  const paymentStatus = event.myPaymentStatus;
+  const paymentLocked = isPaid && paymentStatus === 'VERIFIED';
+  const showPaymentForm = isPaid && !!session && !event.isRegisteredByMe && !isPastEvent && !event.registrationClosed && !isFull;
   const attendedTotal = participants?.filter((p) => p.status === 'CHECKED_IN').length ?? 0;
 
   return (
@@ -151,6 +173,10 @@ export function EventDetailClient() {
               {event._count.registrations}/{event.quota} peserta
             </span>
           </div>
+          <div className="flex items-center gap-3 text-sm">
+            <Wallet size={16} className="text-muted-foreground" />
+            <span className="font-medium">{isPaid ? `Rp${event.price.toLocaleString('id-ID')}` : 'Gratis'}</span>
+          </div>
           {event.route && (
             <div className="flex items-center gap-3 text-sm">
               <span className="text-muted-foreground">Jarak:</span>
@@ -166,23 +192,48 @@ export function EventDetailClient() {
           </div>
         )}
 
-        <Button type="button" size="lg" className="w-full" onClick={handleRegister} disabled={registerEvent.isPending || isFull || event.isRegisteredByMe || isPastEvent || event.registrationClosed}>
-          {registerEvent.isPending ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : isPastEvent ? (
-            'Event Sudah Berlalu'
-          ) : isCheckedIn ? (
-            'Kamu Sudah Check-in'
-          ) : event.isRegisteredByMe ? (
-            'Kamu Sudah Mendaftar Event Ini'
-          ) : event.registrationClosed ? (
-            'Pendaftaran Ditutup'
-          ) : isFull ? (
-            'Kuota Penuh'
-          ) : (
-            'Daftar Event'
-          )}
-        </Button>
+        {isPaid && paymentStatus === 'PENDING' && (
+          <div className="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+            <Hourglass size={20} className="mt-0.5 shrink-0" />
+            <p>Bukti transfer kamu lagi dicek admin. Tiket dikirim lewat email begitu pembayaran terverifikasi.</p>
+          </div>
+        )}
+
+        {isPaid && paymentStatus === 'REJECTED' && (
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
+              <XCircle size={20} className="mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium">Pembayaran ditolak</p>
+                {event.myPaymentRejectReason && <p>Alasan: {event.myPaymentRejectReason}</p>}
+                <p>Upload ulang bukti transfer yang benar ya.</p>
+              </div>
+            </div>
+            <EventPaymentForm price={event.price} isPending={resubmitProof.isPending} submitLabel="Kirim Ulang Bukti" onSubmit={handleResubmit} />
+          </div>
+        )}
+
+        {showPaymentForm && <EventPaymentForm price={event.price} isPending={registerEvent.isPending} submitLabel="Daftar & Kirim Bukti" onSubmit={(proof) => handleRegister(proof)} />}
+
+        {!showPaymentForm && paymentStatus !== 'REJECTED' && (
+          <Button type="button" size="lg" className="w-full" onClick={() => handleRegister()} disabled={registerEvent.isPending || isFull || event.isRegisteredByMe || isPastEvent || event.registrationClosed}>
+            {registerEvent.isPending ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : isPastEvent ? (
+              'Event Sudah Berlalu'
+            ) : isCheckedIn ? (
+              'Kamu Sudah Check-in'
+            ) : event.isRegisteredByMe ? (
+              'Kamu Sudah Mendaftar Event Ini'
+            ) : event.registrationClosed ? (
+              'Pendaftaran Ditutup'
+            ) : isFull ? (
+              'Kuota Penuh'
+            ) : (
+              'Daftar Event'
+            )}
+          </Button>
+        )}
 
         {session && event.checkInOpen && (
           <Button type="button" size="lg" className="w-full" onClick={handleCheckIn} disabled={checkIn.isPending}>
@@ -197,7 +248,7 @@ export function EventDetailClient() {
           </Button>
         )}
 
-        {event.isRegisteredByMe && event.myRegistrationStatus === 'REGISTERED' && !isPastEvent && (
+        {event.isRegisteredByMe && event.myRegistrationStatus === 'REGISTERED' && !isPastEvent && !paymentLocked && (
           <Button type="button" variant="outline" className="w-full text-destructive hover:text-destructive" onClick={handleCancel} disabled={cancelRegistration.isPending}>
             {cancelRegistration.isPending ? <Loader2 size={16} className="animate-spin" /> : 'Batalkan Pendaftaran'}
           </Button>

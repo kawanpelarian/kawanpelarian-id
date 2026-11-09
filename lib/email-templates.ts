@@ -229,3 +229,61 @@ export function getOrderAnnouncementEmailHtml({ memberName, eventName, eventInfo
     bodyHtml: body,
   });
 }
+
+interface EventPaymentReceivedEmailOptions {
+  memberName: string;
+  eventName: string;
+  amountLabel: string;
+}
+
+export function getEventPaymentReceivedEmailHtml({ memberName, eventName, amountLabel }: EventPaymentReceivedEmailOptions): string {
+  const body = `
+    <p style="margin: 0 0 16px; font-size: 15px; text-align: center;">
+      Halo <strong>${escapeHtml(memberName)}</strong>, bukti transfer kamu udah kami terima dan lagi diverifikasi.
+    </p>
+
+    <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+      <tr>
+        <td style="padding: 6px 0; color: #737373;">💰 Total</td>
+        <td style="padding: 6px 0; text-align: right; font-weight: 600;">${escapeHtml(amountLabel)}</td>
+      </tr>
+    </table>
+
+    <p style="margin: 20px 0 0; font-size: 13px; color: #737373; text-align: center;">
+      Tiket kamu bakal dikirim lewat email begitu pembayaran terverifikasi. Makasih ya!
+    </p>
+  `;
+
+  return emailWrapper({ badgeText: 'Menunggu Verifikasi', eventName: escapeHtml(eventName), bodyHtml: body });
+}
+
+interface EventPaymentRejectedEmailOptions {
+  memberName: string;
+  eventName: string;
+  reason?: string;
+  eventUrl: string;
+}
+
+export function getEventPaymentRejectedEmailHtml({ memberName, eventName, reason, eventUrl }: EventPaymentRejectedEmailOptions): string {
+  const body = `
+    <div style="text-align: center; margin-bottom: 16px;">
+      <div style="display: inline-block; background: #fef2f2; color: #dc2626; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 999px;">
+        ✗ Pembayaran Ditolak
+      </div>
+    </div>
+
+    <p style="margin: 0 0 16px; font-size: 15px; text-align: center;">
+      Halo <strong>${escapeHtml(memberName)}</strong>, bukti transfer kamu belum bisa kami terima.
+    </p>
+
+    ${reason ? `<p style="margin: 0 0 16px; font-size: 13px; color: #dc2626; text-align: center;">Alasan: ${escapeHtml(reason)}</p>` : ''}
+
+    <div style="text-align: center;">
+      <a href="${eventUrl}" style="display: inline-block; background: #fbdc00; color: #162349; font-size: 14px; font-weight: 700; padding: 12px 24px; border-radius: 999px; text-decoration: none;">
+        Upload Ulang Bukti
+      </a>
+    </div>
+  `;
+
+  return emailWrapper({ badgeText: 'Update Pembayaran', eventName: escapeHtml(eventName), bodyHtml: body });
+}

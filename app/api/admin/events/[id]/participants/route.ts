@@ -1,3 +1,4 @@
+// app/api/admin/events/[id]/participants/route.ts
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -17,11 +18,13 @@ export async function GET(request: Request, { params }: Params) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get('search') ?? undefined;
   const status = searchParams.get('status') ?? undefined;
+  const payment = searchParams.get('payment') ?? undefined;
 
   const registrations = await prisma.registration.findMany({
     where: {
       eventId: id,
       status: status ? (status as 'REGISTERED' | 'CHECKED_IN' | 'ABSENT') : undefined,
+      paymentStatus: payment ? (payment as 'PENDING' | 'VERIFIED' | 'REJECTED') : undefined,
       member: search
         ? {
             OR: [{ name: { contains: search, mode: 'insensitive' } }, { email: { contains: search, mode: 'insensitive' } }],
@@ -37,6 +40,8 @@ export async function GET(request: Request, { params }: Params) {
     checkedIn: registrations.filter((r) => r.status === 'CHECKED_IN').length,
     absent: registrations.filter((r) => r.status === 'ABSENT').length,
     total: registrations.length,
+    pendingPayment: registrations.filter((r) => r.paymentStatus === 'PENDING').length,
+    revenue: registrations.filter((r) => r.paymentStatus === 'VERIFIED').reduce((sum, r) => sum + r.amountPaid, 0),
   };
 
   return NextResponse.json({ registrations, summary });

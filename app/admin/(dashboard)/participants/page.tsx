@@ -1,3 +1,4 @@
+// app/admin/(dashboard)/participants/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -6,6 +7,8 @@ import { toast } from 'sonner';
 import { useAdminEvents } from '@/hooks/use-admin-events';
 import { useAdminParticipants, useUpdateAttendanceStatus, type ParticipantRow } from '@/hooks/use-admin-participants';
 import { AttendanceStatusBadge } from '@/components/admin/attendance-status-badge';
+import { PaymentProofDialog } from '@/components/admin/payment-proof-dialog';
+import { Badge } from '@/components/ui/badge';
 import { AddParticipantDialog } from '@/components/admin/add-participant-dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,6 +19,19 @@ import { useClientPagination } from '@/hooks/use-client-pagination';
 import { TablePagination } from '@/components/admin/table-pagination';
 import { SortDropdown, type SortOption } from '@/components/admin/sort-dropdown';
 import { sortData } from '@/lib/sort-data';
+
+const paymentOptions = [
+  { value: '', label: 'Semua Pembayaran' },
+  { value: 'PENDING', label: 'Menunggu Verifikasi' },
+  { value: 'VERIFIED', label: 'Lunas' },
+  { value: 'REJECTED', label: 'Ditolak' },
+];
+
+const paymentBadge = {
+  PENDING: { label: 'Menunggu', variant: 'outline' as const },
+  VERIFIED: { label: 'Lunas', variant: 'default' as const },
+  REJECTED: { label: 'Ditolak', variant: 'destructive' as const },
+};
 
 const statusOptions = [
   { value: '', label: 'Semua Status' },
@@ -30,9 +46,14 @@ export default function AdminParticipantsPage() {
   const [searchInput, setSearchInput] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [paymentFilter, setPaymentFilter] = useState('');
+  const [proofRegistration, setProofRegistration] = useState<ParticipantRow | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('newest');
 
-  const { data, isLoading, isFetching, refetch } = useAdminParticipants(selectedEventId, appliedSearch, statusFilter);
+  const { data, isLoading, isFetching, refetch } = useAdminParticipants(selectedEventId, appliedSearch, statusFilter, paymentFilter);
+  const selectedEvent = events?.find((event) => event.id === selectedEventId);
+  const isPaidEvent = (selectedEvent?.price ?? 0) > 0;
+  const columnCount = isPaidEvent ? 7 : 6;
   const updateStatus = useUpdateAttendanceStatus();
 
   const sortedRegistrations = sortData(data?.registrations ?? [], sortOption, {
@@ -110,6 +131,18 @@ export default function AdminParticipantsPage() {
                   <p className="text-sm text-muted-foreground">Tidak Hadir</p>
                   <p className="text-2xl font-semibold text-primaryBlack dark:text-primaryWhite">{data.summary.absent}</p>
                 </div>
+                {isPaidEvent && (
+                  <>
+                    <div className="rounded-xl border border-border px-4 py-3">
+                      <p className="text-sm text-muted-foreground">Menunggu Verifikasi</p>
+                      <p className="text-2xl font-semibold text-primaryBlack dark:text-primaryWhite">{data.summary.pendingPayment}</p>
+                    </div>
+                    <div className="rounded-xl border border-border px-4 py-3">
+                      <p className="text-sm text-muted-foreground">Terkumpul</p>
+                      <p className="text-2xl font-semibold text-primaryBlack dark:text-primaryWhite">Rp{data.summary.revenue.toLocaleString('id-ID')}</p>
+                    </div>
+                  </>
+                )}
               </div>
             )
           )}
@@ -130,6 +163,16 @@ export default function AdminParticipantsPage() {
               ))}
             </select>
 
+            {isPaidEvent && (
+              <select value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm sm:w-52">
+                {paymentOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            )}
+
             <SortDropdown value={sortOption} onChange={setSortOption} />
           </div>
 
@@ -141,6 +184,7 @@ export default function AdminParticipantsPage() {
                   <TableHead>Email</TableHead>
                   <TableHead>No. HP</TableHead>
                   <TableHead>Tanggal Daftar</TableHead>
+                  {isPaidEvent && <TableHead>Pembayaran</TableHead>}
                   <TableHead>Status</TableHead>
                   <TableHead>Ubah Status</TableHead>
                 </TableRow>
@@ -161,6 +205,11 @@ export default function AdminParticipantsPage() {
                       <TableCell>
                         <Skeleton className="h-5 w-20" />
                       </TableCell>
+                      {isPaidEvent && (
+                        <TableCell>
+                          <Skeleton className="h-5 w-16" />
+                        </TableCell>
+                      )}
                       <TableCell>
                         <Skeleton className="h-5 w-16" />
                       </TableCell>
@@ -182,6 +231,18 @@ export default function AdminParticipantsPage() {
                           year: 'numeric',
                         })}
                       </TableCell>
+                      {isPaidEvent && (
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={paymentBadge[reg.paymentStatus].variant}>{paymentBadge[reg.paymentStatus].label}</Badge>
+                            {reg.proofUrl && (
+                              <Button type="button" variant="outline" size="sm" onClick={() => setProofRegistration(reg)}>
+                                Cek Bukti
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      )}
                       <TableCell>
                         <AttendanceStatusBadge status={reg.status} />
                       </TableCell>
@@ -196,7 +257,7 @@ export default function AdminParticipantsPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={columnCount} className="h-24 text-center text-muted-foreground">
                       Belum ada peserta yang terdaftar
                     </TableCell>
                   </TableRow>
@@ -204,6 +265,8 @@ export default function AdminParticipantsPage() {
               </TableBody>
             </Table>
           </div>
+
+          <PaymentProofDialog registration={proofRegistration} onClose={() => setProofRegistration(null)} />
 
           <TablePagination page={page} pageSize={pageSize} total={total} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} onRefresh={() => refetch()} isRefreshing={isFetching} />
         </>

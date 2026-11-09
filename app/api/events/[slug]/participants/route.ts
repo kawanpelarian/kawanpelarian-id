@@ -24,7 +24,7 @@ export async function GET(request: Request, { params }: Params) {
   const isMember = session?.user.role === 'MEMBER';
 
   const registrations = await prisma.registration.findMany({
-    where: { eventId: event.id },
+    where: { eventId: event.id, paymentStatus: 'VERIFIED' },
     select: {
       id: true,
       status: true,

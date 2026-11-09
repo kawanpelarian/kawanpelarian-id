@@ -174,6 +174,7 @@ exports.Prisma.EventScalarFieldEnum = {
   eventTime: 'eventTime',
   meetingPoint: 'meetingPoint',
   quota: 'quota',
+  price: 'price',
   isPublished: 'isPublished',
   registrationClosed: 'registrationClosed',
   checkInUntil: 'checkInUntil',
@@ -186,6 +187,10 @@ exports.Prisma.RegistrationScalarFieldEnum = {
   status: 'status',
   registeredAt: 'registeredAt',
   checkedInAt: 'checkedInAt',
+  paymentStatus: 'paymentStatus',
+  amountPaid: 'amountPaid',
+  proofUrl: 'proofUrl',
+  paymentRejectReason: 'paymentRejectReason',
   memberId: 'memberId',
   eventId: 'eventId'
 };
@@ -300,6 +305,12 @@ exports.RegistrationStatus = exports.$Enums.RegistrationStatus = {
   REGISTERED: 'REGISTERED',
   CHECKED_IN: 'CHECKED_IN',
   ABSENT: 'ABSENT'
+};
+
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  PENDING: 'PENDING',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED'
 };
 
 exports.OrderStatus = exports.$Enums.OrderStatus = {

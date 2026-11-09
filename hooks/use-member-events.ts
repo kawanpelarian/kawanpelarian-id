@@ -1,3 +1,4 @@
+// hooks/use-member-events.ts
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 
@@ -10,6 +11,7 @@ export interface PublicEvent {
   eventTime: string;
   meetingPoint: string;
   quota: number;
+  price: number;
   registrationClosed: boolean;
   _count: { registrations: number };
 }
@@ -18,8 +20,11 @@ export interface PublicEventDetail extends PublicEvent {
   description: string;
   isRegisteredByMe: boolean;
   myRegistrationId: string | null;
-  checkInOpen: boolean;
   myRegistrationStatus: 'REGISTERED' | 'CHECKED_IN' | 'ABSENT' | null;
+  myPaymentStatus: 'PENDING' | 'VERIFIED' | 'REJECTED' | null;
+  myPaymentRejectReason: string | null;
+  myProofUrl: string | null;
+  checkInOpen: boolean;
   route: {
     points: unknown;
     distanceKm: number;
@@ -73,15 +78,48 @@ export function useRegisterEvent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (eventId: string) => {
-      const res = await fetch('/api/registrations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId }),
-      });
+    mutationFn: async ({ eventId, proof }: { eventId: string; proof?: File | null }) => {
+      let res: Response;
+
+      if (proof) {
+        const formData = new FormData();
+        formData.append('eventId', eventId);
+        formData.append('proof', proof);
+        res = await fetch('/api/registrations', { method: 'POST', body: formData });
+      } else {
+        res = await fetch('/api/registrations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ eventId }),
+        });
+      }
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Gagal mendaftar event');
+      return data.registration;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-events'] });
+      queryClient.invalidateQueries({ queryKey: ['public-events'] });
+    },
+  });
+}
+
+export function useResubmitProof() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ registrationId, proof }: { registrationId: string; proof: File }) => {
+      const formData = new FormData();
+      formData.append('proof', proof);
+
+      const res = await fetch(`/api/registrations/${registrationId}/proof`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Gagal mengirim bukti transfer');
       return data.registration;
     },
     onSuccess: () => {

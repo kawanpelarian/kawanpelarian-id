@@ -1,6 +1,7 @@
+// components/public/event-list-card.tsx
 import Link from 'next/link';
 import Image from 'next/image';
-import { CalendarDays, MapPin, Users } from 'lucide-react';
+import { CalendarDays, MapPin, Users, Wallet } from 'lucide-react';
 import type { PublicEvent } from '@/hooks/use-member-events';
 
 export function EventListCard({ event }: { event: PublicEvent }) {
@@ -33,6 +34,10 @@ export function EventListCard({ event }: { event: PublicEvent }) {
             <span>
               {event._count.registrations}/{event.quota} peserta
             </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Wallet size={14} />
+            <span className={event.price > 0 ? 'font-medium text-primaryBlack dark:text-primaryWhite' : undefined}>{event.price > 0 ? `Rp${event.price.toLocaleString('id-ID')}` : 'Gratis'}</span>
           </div>
         </div>
       </div>

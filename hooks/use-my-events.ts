@@ -6,6 +6,7 @@ export interface MyRegistration {
   status: 'REGISTERED' | 'CHECKED_IN' | 'ABSENT';
   registeredAt: string;
   checkedInAt: string | null;
+  paymentStatus: 'PENDING' | 'VERIFIED' | 'REJECTED';
   started: boolean;
   checkInOpen: boolean;
   event: {
@@ -17,6 +18,7 @@ export interface MyRegistration {
     eventTime: string;
     meetingPoint: string;
     checkInUntil: string | null;
+    price: number;
   };
 }
 
@@ -60,9 +62,6 @@ export function useCheckIn() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-events'] });
       queryClient.invalidateQueries({ queryKey: ['my-badges'] });
-      // Biar halaman detail event & daftar peserta ikut segar setelah check-in
-      queryClient.invalidateQueries({ queryKey: ['public-events'] });
-      queryClient.invalidateQueries({ queryKey: ['public-event-participants'] });
     },
   });
 }

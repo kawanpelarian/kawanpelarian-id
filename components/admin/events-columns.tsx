@@ -18,6 +18,7 @@ export interface AdminEventRow {
   eventTime: string;
   checkInUntil: string | null;
   quota: number;
+  price: number;
   isPublished: boolean;
   registrationClosed: boolean;
   _count: { registrations: number };
@@ -54,6 +55,11 @@ export function getEventColumns({ onDelete, onTogglePublish, onToggleRegistratio
           month: 'long',
           year: 'numeric',
         }),
+    },
+    {
+      accessorKey: 'price',
+      header: 'Harga',
+      cell: ({ row }) => (row.original.price > 0 ? `Rp${row.original.price.toLocaleString('id-ID')}` : 'Gratis'),
     },
     {
       accessorKey: '_count.registrations',

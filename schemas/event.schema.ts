@@ -1,3 +1,4 @@
+// schemas/event.schema.ts
 import { z } from 'zod';
 
 export const eventSchema = z.object({
@@ -12,6 +13,7 @@ export const eventSchema = z.object({
   eventTime: z.string().min(1, 'Jam wajib diisi'),
   meetingPoint: z.string().min(3, 'Meeting point wajib diisi'),
   quota: z.number().int().positive('Kuota harus lebih dari 0'),
+  price: z.number().int().min(0, 'Harga tidak boleh negatif').max(10_000_000, 'Harga terlalu besar'),
 });
 
 export type EventInput = z.infer<typeof eventSchema>;

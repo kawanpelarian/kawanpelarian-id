@@ -1,3 +1,4 @@
+// app/api/registrations/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -31,6 +32,11 @@ export async function DELETE(request: Request, { params }: Params) {
   // Kalau udah check-in, gak masuk akal dibatalin lagi
   if (registration.status === 'CHECKED_IN') {
     return NextResponse.json({ error: 'Gak bisa batalin pendaftaran yang udah check-in' }, { status: 400 });
+  }
+
+  // Pembayaran yang sudah diverifikasi tidak bisa dibatalkan sendiri (urusan refund lewat admin)
+  if (registration.paymentStatus === 'VERIFIED' && registration.amountPaid > 0) {
+    return NextResponse.json({ error: 'Pembayaran sudah diverifikasi, hubungi admin untuk pembatalan atau refund' }, { status: 400 });
   }
 
   await prisma.registration.delete({ where: { id } });

@@ -1,8 +1,10 @@
+// app/api/admin/events/route.ts
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { eventSchema } from '@/schemas/event.schema';
 import { slugify } from '@/lib/slugify';
+import { sanitizeHtml } from '@/lib/sanitize-html';
 
 export async function GET() {
   const session = await auth();
@@ -15,7 +17,7 @@ export async function GET() {
     orderBy: { eventDate: 'desc' },
     include: {
       _count: {
-        select: { registrations: true },
+        select: { registrations: { where: { paymentStatus: { not: 'REJECTED' } } } },
       },
     },
   });
@@ -55,12 +57,13 @@ export async function POST(request: Request) {
       data: {
         name: data.name,
         slug: finalSlug,
-        description: data.description,
+        description: sanitizeHtml(data.description),
         coverImageUrl: data.coverImageUrl,
         eventDate: new Date(data.eventDate),
         eventTime: data.eventTime,
         meetingPoint: data.meetingPoint,
         quota: data.quota,
+        price: data.price,
       },
     });
 

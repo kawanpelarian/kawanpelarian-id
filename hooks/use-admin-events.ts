@@ -12,6 +12,7 @@ interface AdminEvent {
   eventTime: string;
   meetingPoint: string;
   quota: number;
+  price: number;
   isPublished: boolean;
   registrationClosed: boolean;
   checkInUntil: string | null;

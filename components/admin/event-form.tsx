@@ -31,6 +31,7 @@ export function EventForm({ defaultValues, onSubmit, isSubmitting, submitLabel =
       eventTime: defaultValues?.eventTime ?? '',
       meetingPoint: defaultValues?.meetingPoint ?? '',
       quota: defaultValues?.quota ?? 0,
+      price: defaultValues?.price ?? 0,
     } as EventInput,
     onSubmit: async ({ value }) => {
       onSubmit(value);
@@ -143,6 +144,17 @@ export function EventForm({ defaultValues, onSubmit, isSubmitting, submitLabel =
           <div className="space-y-2">
             <Label htmlFor="quota">Kuota Peserta</Label>
             <Input id="quota" type="number" min={1} value={field.state.value} onChange={(e) => field.handleChange(Number(e.target.value))} onBlur={field.handleBlur} placeholder="100" />
+            {field.state.meta.errors.length > 0 && <p className="text-sm text-destructive">{field.state.meta.errors[0]?.message}</p>}
+          </div>
+        )}
+      </form.Field>
+
+      <form.Field name="price" validators={{ onChange: eventSchema.shape.price }}>
+        {(field) => (
+          <div className="space-y-2">
+            <Label htmlFor="price">Harga Tiket (Rp)</Label>
+            <Input id="price" type="number" min={0} step={1000} value={field.state.value} onChange={(e) => field.handleChange(Number(e.target.value))} onBlur={field.handleBlur} placeholder="0" />
+            <p className="text-sm text-muted-foreground">Isi 0 untuk event gratis. Event berbayar butuh bukti transfer dan verifikasi admin.</p>
             {field.state.meta.errors.length > 0 && <p className="text-sm text-destructive">{field.state.meta.errors[0]?.message}</p>}
           </div>
         )}

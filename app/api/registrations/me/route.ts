@@ -32,7 +32,7 @@ export async function GET() {
   const withFlags = registrations.map((r) => ({
     ...r,
     started: getEventDateTime(r.event.eventDate, r.event.eventTime) < now,
-    checkInOpen: r.status === 'REGISTERED' && isCheckInOpen(r.event, now),
+    checkInOpen: r.status === 'REGISTERED' && r.paymentStatus === 'VERIFIED' && isCheckInOpen(r.event, now),
   }));
 
   // Event yang sudah mulai tapi check-in-nya masih dibuka tetap tampil di
