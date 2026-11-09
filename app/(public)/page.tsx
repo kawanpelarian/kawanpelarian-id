@@ -22,13 +22,13 @@ export default function HomePage() {
   return (
     <div>
       <HeroSection />
+      <PartnersSection />
       <AboutSection />
       <UpcomingEventSection />
       <MerchandiseSection />
       {/* <RouteMapSection /> */}
       <GallerySection />
       <DonationSection />
-      <PartnersSection />
     </div>
   );
 }

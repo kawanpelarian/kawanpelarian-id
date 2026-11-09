@@ -13,10 +13,10 @@ export async function PartnersSection() {
   const items = Array.from({ length: repeat }).flatMap(() => partners);
 
   return (
-    <section id="partners" className="py-20">
-      <div className="mx-auto mb-10 max-w-5xl px-6 text-center lg:px-8">
-        <h2 className="font-title text-3xl font-black uppercase italic text-primaryBlack dark:text-primaryWhite sm:text-4xl">Kolaborasi & Sponsor</h2>
-        <p className="mt-2 text-[15px] text-muted-foreground">Terima kasih untuk semua yang sudah mendukung Kawan Pelarian</p>
+    <section id="partners" className="py-12 sm:py-16">
+      <div className="mx-auto mb-8 max-w-5xl px-6 text-center lg:px-8">
+        <h2 className="font-title text-3xl font-black uppercase italic text-primaryBlack dark:text-primaryWhite sm:text-4xl">Didukung Oleh</h2>
+        <p className="mt-2 text-[15px] text-muted-foreground">Terima kasih kepada semua kolaborator dan sponsor yang sudah jalan bareng Kawan Pelarian</p>
       </div>
 
       <PartnersMarquee partners={items} />
