@@ -11,7 +11,7 @@ const faqItems = [
   },
   {
     question: 'Ada biaya buat ikut event?',
-    answer: 'Tergantung eventnya. Event mingguan biasanya gratis, sedangkan event tertentu bisa berbayar. Harga tiap event tertera di halaman Event, dan untuk event berbayar kamu cukup transfer lalu upload bukti pembayarannya saat daftar.',
+    answer: 'Event mingguan biasanya gratis, sedangkan event tertentu bisa berbayar. Harga tiap event tertera di halaman Event, dan untuk event berbayar kamu cukup transfer lalu upload bukti pembayarannya saat daftar.',
   },
   {
     question: 'Perlu perlengkapan khusus?',
