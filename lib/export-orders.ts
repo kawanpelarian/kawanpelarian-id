@@ -101,10 +101,11 @@ export async function exportOrdersToExcel(orders: AdminOrder[], batchLabel?: str
   XLSX.writeFile(workbook, `pesanan-kawan-pelarian${fileSuffix(batchLabel)}-${Date.now()}.xlsx`);
 }
 
-export async function exportOrdersToPDF(orders: AdminOrder[], batchLabel?: string) {
+export async function exportOrdersToPDF(allOrders: AdminOrder[], batchLabel?: string) {
   const { default: jsPDF } = await import('jspdf');
   const autoTable = (await import('jspdf-autotable')).default;
 
+  const orders = allOrders.filter((order) => order.status !== 'REJECTED');
   const doc = new jsPDF();
 
   const totalOrders = orders.length;
