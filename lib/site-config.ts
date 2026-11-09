@@ -17,7 +17,7 @@ export const siteConfig = {
   // Rekening tujuan transfer buat pembayaran merchandise, ganti di sini aja
   bankAccount: {
     bankName: 'MANDIRI',
-    accountNumber: '1050016344776',
-    accountHolder: 'MUHAMMAD FIKRI FADIL',
+    accountNumber: '1070018792053',
+    accountHolder: 'RIANA SARMAULINA TAM',
   },
 } as const;
