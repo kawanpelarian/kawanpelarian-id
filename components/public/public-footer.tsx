@@ -6,14 +6,17 @@ const menuItems = [
   { title: 'Tentang', url: '/about' },
   { title: 'Event', url: '/events' },
   { title: 'Galeri', url: '/gallery' },
+  { title: 'Donasi', url: '/#donasi' },
 ];
 
 const socialLinks = [
-  { name: 'Instagram', url: 'https://www.instagram.com/kawanpelarian.official' },
-  { name: 'Threads', url: 'https://threads.net/@kawanpelarian.official' },
+  { name: 'Instagram', url: 'https://instagram.com/kawanpelarian.id' },
+  { name: 'Threads', url: 'https://threads.net/@kawanpelarian.id' },
+  { name: 'TikTok', url: 'https://tiktok.com/@kawanpelarian.id' },
 ];
 
 const contactLinks = [
+  { name: 'Email', url: 'mailto:kawanpelarian4@gmail.com' },
   { name: 'Admin WhatsApp 1', url: 'https://wa.me/6282283893133' },
   { name: 'Admin WhatsApp 2', url: 'https://wa.me/6281275826699' },
 ];
@@ -31,7 +34,7 @@ export function PublicFooter() {
           {/* Kolom 1: Logo + Deskripsi */}
           <div className="space-y-4 sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex h-8 w-fit items-center">
-              <Logo width={200} height={56} className="h-full w-auto object-contain" />
+              <Logo width={114} height={32} className="h-8 w-auto object-contain" />
             </Link>
             <p className="max-w-xs text-sm text-muted-foreground">Komunitas lari santai buat semua kalangan, tanpa fokus kecepatan atau kompetisi. Yuk lari pelan-pelan bareng kita tiap minggu di Medan.</p>
           </div>

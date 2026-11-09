@@ -12,7 +12,7 @@ export default function TermsOfServicePage() {
     <div className="mx-auto max-w-2xl space-y-8 px-6 py-16 lg:px-8">
       <div className="space-y-2">
         <h1 className="font-title text-3xl font-black uppercase italic text-primaryBlack dark:text-primaryWhite">Syarat &amp; Ketentuan</h1>
-        <p className="text-sm text-muted-foreground">Terakhir diperbarui: 20 Agustus 2026</p>
+        <p className="text-sm text-muted-foreground">Terakhir diperbarui: 9 November 2026</p>
       </div>
 
       <div className="space-y-8 text-[15px] text-muted-foreground">
@@ -33,15 +33,26 @@ export default function TermsOfServicePage() {
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">2. Pendaftaran Event</h2>
           <ul className="ml-4 list-disc space-y-1">
-            <li>Pendaftaran event bersifat gratis, kecuali dinyatakan lain</li>
+            <li>Biaya pendaftaran tiap event berbeda-beda. Ada event gratis dan ada yang berbayar, dan harganya tertera di halaman event</li>
             <li>Kuota terbatas, pendaftaran ditutup otomatis kalau udah penuh</li>
-            <li>Check-in cuma bisa dilakukan pada hari-H event, langsung di lokasi lewat halaman &quot;Event Saya&quot;</li>
+            <li>Check-in dibuka 30 menit sebelum event dimulai, langsung di lokasi lewat halaman event atau &quot;Event Saya&quot;. Waktu check-in bisa diperpanjang panitia sesuai kebutuhan</li>
             <li>Kami berhak membatalkan/mengubah jadwal event dengan pemberitahuan sebelumnya</li>
           </ul>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">3. Pembelian Merchandise</h2>
+          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">3. Event Berbayar</h2>
+          <ul className="ml-4 list-disc space-y-1">
+            <li>Pembayaran dilakukan manual lewat transfer bank ke rekening yang tertera, dan bukti transfer wajib diupload saat mendaftar</li>
+            <li>Pendaftaran berstatus &quot;Menunggu Verifikasi&quot; sampai admin mengecek bukti transfer. Tiket dikirim lewat email setelah pembayaran terverifikasi, dan check-in baru bisa dilakukan setelah itu</li>
+            <li>Selama menunggu verifikasi, kuota kamu tetap ditahan. Kalau bukti transfer gak sesuai atau gak valid, pembayaran ditolak, kuota dilepas, dan kamu bisa mengupload ulang bukti yang benar selama kuota masih ada</li>
+            <li>Pembayaran yang sudah terverifikasi gak bisa dibatalkan sendiri. Pembatalan atau refund diajukan lewat panitia dan dipertimbangkan kasus per kasus, misalnya kalau event dibatalkan atau jadwalnya diubah panitia</li>
+            <li>Pastikan nominal transfer sesuai harga event. Kelebihan atau kekurangan transfer diselesaikan lewat panitia</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">4. Pembelian Merchandise</h2>
           <p>{siteConfig.name} menyediakan merchandise (jersey, dll) yang bisa dipesan lewat platform ini. Dengan checkout, kamu setuju sama ketentuan berikut:</p>
           <ul className="ml-4 list-disc space-y-1">
             <li>Pembayaran dilakukan manual lewat transfer bank ke rekening yang tertera, dan bukti transfer wajib diupload saat checkout</li>
@@ -55,7 +66,7 @@ export default function TermsOfServicePage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">4. Risiko Aktivitas Fisik</h2>
+          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">5. Risiko Aktivitas Fisik</h2>
           <p>Lari adalah aktivitas fisik yang punya risiko cedera. Dengan ikut event {siteConfig.name}, kamu menyatakan:</p>
           <ul className="ml-4 list-disc space-y-1">
             <li>Ikut serta atas kesadaran dan tanggung jawab pribadi</li>
@@ -66,7 +77,7 @@ export default function TermsOfServicePage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">5. Dokumentasi &amp; Foto</h2>
+          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">6. Dokumentasi &amp; Foto</h2>
           <p>
             Selama event berlangsung, panitia bisa mengambil foto/video dokumentasi yang melibatkan peserta. Dengan ikut event, kamu setuju dokumentasi tersebut boleh dipakai {siteConfig.name} buat keperluan promosi komunitas (galeri
             website, media sosial, dll), tanpa kompensasi apapun.
@@ -74,7 +85,7 @@ export default function TermsOfServicePage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">6. Perilaku Peserta</h2>
+          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">7. Perilaku Peserta</h2>
           <p>Selama jadi bagian dari komunitas ini, kamu diharapkan buat:</p>
           <ul className="ml-4 list-disc space-y-1">
             <li>Saling menghormati sesama peserta, panitia, dan warga sekitar rute lari</li>
@@ -89,12 +100,21 @@ export default function TermsOfServicePage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">7. Perubahan Ketentuan</h2>
+          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">8. Donasi</h2>
+          <ul className="ml-4 list-disc space-y-1">
+            <li>Donasi bersifat sukarela dan seikhlasnya, lewat QRIS yang tersedia di halaman utama</li>
+            <li>Donasi yang sudah dikirim gak bisa dikembalikan, jadi pastikan nominal dan tujuan sudah benar sebelum konfirmasi</li>
+            <li>Donasi dipakai buat kebutuhan komunitas seperti perlengkapan event, dokumentasi, dan operasional</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">9. Perubahan Ketentuan</h2>
           <p>Ketentuan ini bisa diperbarui dari waktu ke waktu. Perubahan signifikan akan diinformasikan lewat platform ini.</p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">8. Kontak</h2>
+          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">10. Kontak</h2>
           <p>
             Ada pertanyaan soal syarat &amp; ketentuan ini? Hubungi kami lewat Instagram{' '}
             <a href={siteConfig.social.instagram} target="_blank" rel="noopener noreferrer" className="font-medium text-primaryBlack underline dark:text-primaryWhite">

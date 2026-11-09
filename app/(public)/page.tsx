@@ -6,6 +6,7 @@ import { UpcomingEventSection } from '@/components/public/upcoming-event-section
 import { MerchandiseSection } from '@/components/public/merchandise-section';
 // import { RouteMapSection } from "@/components/public/route-map-section";
 import { GallerySection } from '@/components/public/gallery-section';
+import { DonationSection } from '@/components/public/donation-section';
 import { PartnersSection } from '@/components/public/partners-section';
 import { siteConfig } from '@/lib/site-config';
 
@@ -26,6 +27,7 @@ export default function HomePage() {
       <MerchandiseSection />
       {/* <RouteMapSection /> */}
       <GallerySection />
+      <DonationSection />
       <PartnersSection />
     </div>
   );

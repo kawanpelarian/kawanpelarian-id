@@ -11,7 +11,7 @@ export default function PrivacyPolicyPage() {
     <div className="mx-auto max-w-2xl space-y-8 px-6 py-16 lg:px-8">
       <div className="space-y-2">
         <h1 className="font-title text-3xl font-black uppercase italic text-primaryBlack dark:text-primaryWhite">Kebijakan Privasi</h1>
-        <p className="text-sm text-muted-foreground">Terakhir diperbarui: 20 Agustus 2026</p>
+        <p className="text-sm text-muted-foreground">Terakhir diperbarui: 9 November 2026</p>
       </div>
 
       <div className="space-y-8 text-[15px] text-muted-foreground">
@@ -30,6 +30,7 @@ export default function PrivacyPolicyPage() {
             <li>Password (kalau daftar manual), disimpan dalam bentuk hash, gak pernah dalam bentuk asli</li>
             <li>Riwayat pendaftaran dan kehadiran event</li>
             <li>Riwayat pembelian merchandise dan bukti transfer yang kamu upload saat checkout</li>
+            <li>Bukti transfer dan status pembayaran untuk event berbayar yang kamu daftar</li>
           </ul>
           <p>
             Kalau kamu daftar/masuk lewat <strong>Login dengan Google</strong>, kami cuma nerima nama dan email dari akun Google kamu — kami gak pernah nyimpen atau punya akses ke password Google kamu sama sekali. Nomor HP dan data lain
@@ -42,8 +43,11 @@ export default function PrivacyPolicyPage() {
           <ul className="ml-4 list-disc space-y-1">
             <li>Memproses pendaftaran akun dan event</li>
             <li>Mengirim email konfirmasi terkait event yang kamu ikuti (tiket pendaftaran dan check-in)</li>
-            <li>Menampilkan nama kamu di daftar peserta event (kalau kamu daftar)</li>
+            <li>Menampilkan nama kamu di daftar peserta event, beserta status hadir dan lencana kehadiran (kalau kamu daftar dan, untuk event berbayar, pembayarannya sudah terverifikasi)</li>
+            <li>Menampilkan profil publik kamu hanya kalau kamu sendiri yang mengaktifkannya lewat halaman Profil</li>
             <li>Memproses pesanan merchandise dan verifikasi pembayaran</li>
+            <li>Memverifikasi pembayaran event berbayar, lalu mengirim tiket atau kabar penolakan lewat email</li>
+            <li>Mengirim pengumuman penting lewat email, misalnya info event berikutnya buat pembeli merchandise</li>
             <li>Menampilkan statistik komunitas (jumlah total member) secara agregat/anonim</li>
           </ul>
           <p>
@@ -59,10 +63,10 @@ export default function PrivacyPolicyPage() {
               <strong>Google Sign-In</strong> — opsi login pakai akun Google, dikelola langsung sama Google sesuai kebijakan privasi mereka
             </li>
             <li>
-              <strong>Cloudinary</strong> — penyimpanan foto cover event, galeri, gambar produk, dan bukti transfer
+              <strong>Cloudinary</strong> — penyimpanan foto cover event, galeri, gambar produk, serta bukti transfer pesanan merchandise dan event berbayar
             </li>
             <li>
-              <strong>Resend</strong> — pengiriman email transactional (tiket pendaftaran, notifikasi check-in)
+              <strong>Resend</strong> — pengiriman email transactional (tiket pendaftaran, status pembayaran, notifikasi check-in, dan pengumuman)
             </li>
             <li>
               <strong>Vercel Analytics</strong> — analitik pengunjung, bersifat anonim/agregat, gak melacak identitas personal
@@ -92,15 +96,24 @@ export default function PrivacyPolicyPage() {
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">6. Keamanan Data</h2>
           <p>Password kamu disimpan dalam bentuk hash (bukan teks asli) dan gak bisa dibaca siapapun, termasuk admin. Kami menerapkan langkah wajar buat melindungi data kamu dari akses gak sah.</p>
+          <p>
+            Bukti transfer cuma bisa dilihat admin lewat dashboard. Tapi file-nya disimpan di layanan penyimpanan gambar dengan alamat yang gak mudah ditebak, jadi sebaiknya jangan mengunggah bukti yang memuat informasi sensitif di luar
+            keperluan pembayaran (misal: saldo rekening atau data pribadi lain). Kamu bisa menutup bagian yang gak perlu sebelum mengunggah.
+          </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">7. Perubahan Kebijakan</h2>
+          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">7. Donasi</h2>
+          <p>Donasi lewat QRIS diproses langsung oleh penyedia pembayaran kamu (e-wallet atau mobile banking). Kami gak mengumpulkan atau menyimpan data pembayaran kamu lewat platform ini.</p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">8. Perubahan Kebijakan</h2>
           <p>Kebijakan ini bisa diperbarui dari waktu ke waktu. Perubahan signifikan akan diinformasikan lewat platform ini.</p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">8. Kontak</h2>
+          <h2 className="text-lg font-semibold text-primaryBlack dark:text-primaryWhite">9. Kontak</h2>
           <p>
             Ada pertanyaan soal privasi atau data kamu? Hubungi kami lewat Instagram{' '}
             <a href={siteConfig.social.instagram} target="_blank" rel="noopener noreferrer" className="font-medium text-primaryBlack underline dark:text-primaryWhite">

@@ -11,7 +11,7 @@ const faqItems = [
   },
   {
     question: 'Ada biaya buat ikut event?',
-    answer: 'Event mingguan kita gratis. Info lebih detail soal event tertentu bisa dicek langsung di halaman Event.',
+    answer: 'Tergantung eventnya. Event mingguan biasanya gratis, sedangkan event tertentu bisa berbayar. Harga tiap event tertera di halaman Event, dan untuk event berbayar kamu cukup transfer lalu upload bukti pembayarannya saat daftar.',
   },
   {
     question: 'Perlu perlengkapan khusus?',
@@ -53,7 +53,6 @@ export function AboutSection() {
   return (
     <section id="about" className="mx-auto max-w-5xl scroll-mt-20 px-6 py-20 lg:px-8">
       <div className="space-y-16">
-        {/* Cerita Komunitas */}
         <div className="space-y-4 text-center">
           <h2 className="font-title text-3xl font-black uppercase italic text-primaryBlack dark:text-primaryWhite sm:text-4xl">Cerita Kami</h2>
           <p className="mx-auto max-w-2xl text-[15px] text-muted-foreground">
@@ -62,7 +61,6 @@ export function AboutSection() {
           </p>
         </div>
 
-        {/* Visi Misi */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2 rounded-xl border border-border p-6">
             <h3 className="font-title text-lg font-semibold uppercase text-primaryBlack dark:text-primaryWhite">Visi</h3>
@@ -79,7 +77,6 @@ export function AboutSection() {
           </div>
         </div>
 
-        {/* FAQ */}
         <div className="space-y-6">
           <h3 className="font-title text-center text-2xl font-black uppercase italic text-primaryBlack dark:text-primaryWhite">Pertanyaan Umum</h3>
           <FaqAccordion />
