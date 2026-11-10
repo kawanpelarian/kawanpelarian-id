@@ -1,8 +1,9 @@
 // app/(member)/members/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMembers } from '@/hooks/use-members';
 import { toTitleCase } from '@/lib/format-name';
@@ -14,18 +15,39 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function MembersPage() {
-  const [input, setInput] = useState('');
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
+  return (
+    <Suspense fallback={null}>
+      <MembersContent />
+    </Suspense>
+  );
+}
+
+function MembersContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const search = searchParams.get('q') ?? '';
+  const page = Math.max(1, Number(searchParams.get('page')) || 1);
+  const [input, setInput] = useState(search);
   const { data, isLoading, isError } = useMembers(search, page);
 
+  const updateUrl = (nextSearch: string, nextPage: number) => {
+    const params = new URLSearchParams();
+    if (nextSearch) params.set('q', nextSearch);
+    if (nextPage > 1) params.set('page', String(nextPage));
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setSearch(input.trim());
-      setPage(1);
-    }, 300);
+    const trimmed = input.trim();
+    if (trimmed === search) return;
+
+    const timer = setTimeout(() => updateUrl(trimmed, 1), 300);
     return () => clearTimeout(timer);
-  }, [input]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [input, search]);
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
 
@@ -68,14 +90,14 @@ export default function MembersPage() {
 
       {data && totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => updateUrl(search, page - 1)}>
             <ChevronLeft size={14} />
             Sebelumnya
           </Button>
           <span className="text-xs text-muted-foreground">
             {page} / {totalPages}
           </span>
-          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => updateUrl(search, page + 1)}>
             Berikutnya
             <ChevronRight size={14} />
           </Button>

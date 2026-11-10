@@ -63,7 +63,7 @@ export default function MemberProfilePage() {
       )}
 
       <div className="flex flex-col items-center gap-3 text-center">
-        <MemberAvatar name={name} avatarUrl={member.avatarUrl} size="lg" />
+        <MemberAvatar name={name} avatarUrl={member.avatarUrl} size="lg" zoomable />
         <div className="space-y-1">
           <h1 className="flex items-center justify-center gap-2 text-2xl font-semibold text-primaryBlack dark:text-primaryWhite">
             {name}

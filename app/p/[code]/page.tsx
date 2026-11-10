@@ -63,11 +63,12 @@ export default async function PublicProfilePage({ params }: Props) {
     <main className="min-h-screen bg-background px-4 py-10">
       <div className="mx-auto max-w-md space-y-8">
         <Link href="/" className="flex items-center justify-center gap-2">
-          <Image src="/images/logo-horizontal-dark.png" alt="Kawan Pelarian" width={600} height={600} className="w-52" />
+          <Image src="/images/icon-512.png" alt="Kawan Pelarian" width={36} height={36} className="rounded-lg" />
+          <span className="text-sm font-semibold uppercase tracking-wide text-primaryBlack dark:text-primaryWhite">Kawan Pelarian</span>
         </Link>
 
         <div className="flex flex-col items-center gap-4 text-center">
-          <MemberAvatar name={profile.publicName} avatarUrl={profile.avatarUrl} size="lg" />
+          <MemberAvatar name={profile.publicName} avatarUrl={profile.avatarUrl} size="lg" zoomable />
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold text-primaryBlack dark:text-primaryWhite">{profile.publicName}</h1>
             <p className="text-xs text-muted-foreground">Bergabung {joined}</p>
