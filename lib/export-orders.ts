@@ -1,5 +1,6 @@
 // lib/export-orders.ts
 import type { AdminOrder } from '@/hooks/use-admin-orders';
+import { exportName, removeEmoji } from '@/lib/export-text';
 
 const statusLabel = {
   PENDING: 'Menunggu Verifikasi',
@@ -8,7 +9,7 @@ const statusLabel = {
 } as const;
 
 function summarizeItems(order: AdminOrder) {
-  return order.items.map((item) => `${item.variant.product.name} (${item.variant.size}) x${item.quantity}`).join(', ');
+  return order.items.map((item) => `${removeEmoji(item.variant.product.name)} (${removeEmoji(item.variant.size)}) x${item.quantity}`).join(', ');
 }
 
 // Label batch opsional ("Batch 2"), ditempel ke judul dan nama file export
@@ -37,14 +38,16 @@ function buildSizeRecap(orders: AdminOrder[]) {
   for (const order of orders) {
     if (order.status === 'REJECTED') continue;
     for (const item of order.items) {
-      const key = `${item.variant.product.name}__${item.variant.size}`;
+      const productName = removeEmoji(item.variant.product.name);
+      const size = removeEmoji(item.variant.size);
+      const key = `${productName}__${size}`;
       const existing = sizeMap.get(key);
       if (existing) {
         existing.jumlah += item.quantity;
       } else {
         sizeMap.set(key, {
-          produk: item.variant.product.name,
-          ukuran: item.variant.size,
+          produk: productName,
+          ukuran: size,
           jumlah: item.quantity,
         });
       }
@@ -72,11 +75,11 @@ export async function exportOrdersToExcel(orders: AdminOrder[], batchLabel?: str
   // direkap/di-filter di Excel
   const dataRows = orders.flatMap((order) =>
     order.items.map((item) => ({
-      Pemesan: order.member.name,
+      Pemesan: exportName(order.member.name),
       Email: order.member.email,
       'No. HP': order.member.phone ?? '-',
-      Produk: item.variant.product.name,
-      Ukuran: item.variant.size,
+      Produk: removeEmoji(item.variant.product.name),
+      Ukuran: removeEmoji(item.variant.size),
       Jumlah: item.quantity,
       Subtotal: item.price * item.quantity,
       Status: statusLabel[order.status],
@@ -155,7 +158,7 @@ export async function exportOrdersToPDF(allOrders: AdminOrder[], batchLabel?: st
   autoTable(doc, {
     startY: afterRecapY + 14,
     head: [['Pemesan', 'No. HP', 'Item', 'Total', 'Status', 'Tanggal']],
-    body: orders.map((order) => [order.member.name, order.member.phone ?? '-', summarizeItems(order), `Rp${order.totalAmount.toLocaleString('id-ID')}`, statusLabel[order.status], formatDate(order.createdAt)]),
+    body: orders.map((order) => [exportName(order.member.name), order.member.phone ?? '-', summarizeItems(order), `Rp${order.totalAmount.toLocaleString('id-ID')}`, statusLabel[order.status], formatDate(order.createdAt)]),
     styles: { fontSize: 8, cellPadding: 3 },
     headStyles: { fillColor: [22, 35, 73] },
     columnStyles: { 2: { cellWidth: 55 } },

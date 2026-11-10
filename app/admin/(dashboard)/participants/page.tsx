@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Download, Loader2, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAdminEvents } from '@/hooks/use-admin-events';
 import { useAdminParticipants, useUpdateAttendanceStatus, type ParticipantRow } from '@/hooks/use-admin-participants';
@@ -10,6 +10,8 @@ import { AttendanceStatusBadge } from '@/components/admin/attendance-status-badg
 import { PaymentProofDialog } from '@/components/admin/payment-proof-dialog';
 import { Badge } from '@/components/ui/badge';
 import { AddParticipantDialog } from '@/components/admin/add-participant-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { exportPaidParticipantsToExcel, exportPaidParticipantsToPDF } from '@/lib/export-participants';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -54,6 +56,33 @@ export default function AdminParticipantsPage() {
   const selectedEvent = events?.find((event) => event.id === selectedEventId);
   const isPaidEvent = (selectedEvent?.price ?? 0) > 0;
   const columnCount = isPaidEvent ? 7 : 6;
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async (type: 'pdf' | 'excel') => {
+    if (!selectedEvent) return;
+
+    setIsExporting(true);
+    try {
+      const res = await fetch(`/api/admin/events/${selectedEvent.id}/participants?payment=VERIFIED`);
+      if (!res.ok) throw new Error('Gagal memuat data peserta');
+      const { registrations } = (await res.json()) as { registrations: ParticipantRow[] };
+
+      if (registrations.length === 0) {
+        toast.error('Belum ada peserta yang lunas');
+        return;
+      }
+
+      const info = { name: selectedEvent.name, eventDate: selectedEvent.eventDate };
+
+      if (type === 'pdf') await exportPaidParticipantsToPDF(registrations, info);
+      else await exportPaidParticipantsToExcel(registrations, info);
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Gagal export data');
+    } finally {
+      setIsExporting(false);
+    }
+  };
   const updateStatus = useUpdateAttendanceStatus();
 
   const sortedRegistrations = sortData(data?.registrations ?? [], sortOption, {
@@ -98,7 +127,27 @@ export default function AdminParticipantsPage() {
           </select>
         </div>
 
-        {selectedEventId && <AddParticipantDialog eventId={selectedEventId} />}
+        {selectedEventId && (
+          <div className="flex items-center gap-2">
+            {isPaidEvent && (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button variant="outline" size="sm" disabled={isExporting}>
+                      {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                      Export ke...
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleExport('excel')}>Excel Lengkap (.xlsx)</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF Nama Peserta</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            <AddParticipantDialog eventId={selectedEventId} />
+          </div>
+        )}
       </div>
 
       {selectedEventId && (
