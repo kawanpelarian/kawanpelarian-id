@@ -1,15 +1,17 @@
 // lib/export-orders.ts
-import type { AdminOrder } from '@/hooks/use-admin-orders';
-import { exportName, removeEmoji } from '@/lib/export-text';
+import type { AdminOrder } from "@/hooks/use-admin-orders";
+import { exportName, removeEmoji } from "@/lib/export-text";
 
 const statusLabel = {
-  PENDING: 'Menunggu Verifikasi',
-  VERIFIED: 'Terverifikasi',
-  REJECTED: 'Ditolak',
+  PENDING: "Menunggu Verifikasi",
+  VERIFIED: "Terverifikasi",
+  REJECTED: "Ditolak",
 } as const;
 
 function summarizeItems(order: AdminOrder) {
-  return order.items.map((item) => `${removeEmoji(item.variant.product.name)} (${removeEmoji(item.variant.size)}) x${item.quantity}`).join(', ');
+  return order.items
+    .map((item) => `${removeEmoji(item.variant.product.name)} (${removeEmoji(item.variant.size)}) x${item.quantity}`)
+    .join(", ");
 }
 
 // Label batch opsional ("Batch 2"), ditempel ke judul dan nama file export
@@ -18,14 +20,14 @@ function withBatch(title: string, batchLabel?: string) {
 }
 
 function fileSuffix(batchLabel?: string) {
-  return batchLabel ? `-${batchLabel.toLowerCase().replace(/\s+/g, '-')}` : '';
+  return batchLabel ? `-${batchLabel.toLowerCase().replace(/\s+/g, "-")}` : "";
 }
 
 function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
+  return new Date(dateString).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
   });
 }
 
@@ -36,7 +38,7 @@ function buildSizeRecap(orders: AdminOrder[]) {
   const sizeMap = new Map<string, { produk: string; ukuran: string; jumlah: number }>();
 
   for (const order of orders) {
-    if (order.status === 'REJECTED') continue;
+    if (order.status === "REJECTED") continue;
     for (const item of order.items) {
       const productName = removeEmoji(item.variant.product.name);
       const size = removeEmoji(item.variant.size);
@@ -54,7 +56,9 @@ function buildSizeRecap(orders: AdminOrder[]) {
     }
   }
 
-  const rows = Array.from(sizeMap.values()).sort((a, b) => a.produk.localeCompare(b.produk) || a.ukuran.localeCompare(b.ukuran));
+  const rows = Array.from(sizeMap.values()).sort(
+    (a, b) => a.produk.localeCompare(b.produk) || a.ukuran.localeCompare(b.ukuran)
+  );
   const totalUnit = rows.reduce((sum, r) => sum + r.jumlah, 0);
 
   return { rows, totalUnit };
@@ -63,12 +67,16 @@ function buildSizeRecap(orders: AdminOrder[]) {
 // Library berat, di-load pas dibutuhin aja (pas tombol export diklik),
 // biar gak nambahin ukuran bundle awal buat semua orang yang buka halaman ini
 export async function exportOrdersToExcel(orders: AdminOrder[], batchLabel?: string) {
-  const XLSX = await import('xlsx');
+  const XLSX = await import("xlsx");
 
   const totalOrders = orders.length;
   const uniqueBuyers = new Set(orders.map((o) => o.member.id)).size;
 
-  const summaryRows = [{ Keterangan: 'Total Pesanan', Nilai: totalOrders }, { Keterangan: 'Total Pemesan (Orang)', Nilai: uniqueBuyers }, {}];
+  const summaryRows = [
+    { Keterangan: "Total Pesanan", Nilai: totalOrders },
+    { Keterangan: "Total Pemesan (Orang)", Nilai: uniqueBuyers },
+    {},
+  ];
 
   // 1 baris per ITEM (bukan per order), biar kalau 1 orang beli beberapa
   // varian sekaligus, tiap varian jadi baris terpisah - lebih gampang
@@ -77,38 +85,52 @@ export async function exportOrdersToExcel(orders: AdminOrder[], batchLabel?: str
     order.items.map((item) => ({
       Pemesan: exportName(order.member.name),
       Email: order.member.email,
-      'No. HP': order.member.phone ?? '-',
+      "No. HP": order.member.phone ?? "-",
       Produk: removeEmoji(item.variant.product.name),
       Ukuran: removeEmoji(item.variant.size),
       Jumlah: item.quantity,
       Subtotal: item.price * item.quantity,
       Status: statusLabel[order.status],
+      Keterangan: order.note ? removeEmoji(order.note) || "-" : "-",
       Tanggal: formatDate(order.createdAt),
-    })),
+    }))
   );
 
   const detailSheet = XLSX.utils.json_to_sheet(summaryRows, { skipHeader: true });
   XLSX.utils.sheet_add_json(detailSheet, dataRows, { origin: -1 });
-  detailSheet['!cols'] = [{ wch: 22 }, { wch: 25 }, { wch: 15 }, { wch: 24 }, { wch: 10 }, { wch: 8 }, { wch: 12 }, { wch: 18 }, { wch: 14 }];
+  detailSheet["!cols"] = [
+    { wch: 22 },
+    { wch: 25 },
+    { wch: 15 },
+    { wch: 24 },
+    { wch: 10 },
+    { wch: 8 },
+    { wch: 12 },
+    { wch: 18 },
+    { wch: 40 },
+    { wch: 14 },
+  ];
 
   const { rows: sizeRows, totalUnit } = buildSizeRecap(orders);
-  const recapRows: { Produk: string; Ukuran: string; 'Total Jumlah': number }[] = sizeRows.map((row) => ({ Produk: row.produk, Ukuran: row.ukuran, 'Total Jumlah': row.jumlah }));
-  recapRows.push({ Produk: '', Ukuran: 'TOTAL', 'Total Jumlah': totalUnit });
+  const recapRows: { Produk: string; Ukuran: string; "Total Jumlah": number }[] = sizeRows.map(
+    (row) => ({ Produk: row.produk, Ukuran: row.ukuran, "Total Jumlah": row.jumlah })
+  );
+  recapRows.push({ Produk: "", Ukuran: "TOTAL", "Total Jumlah": totalUnit });
 
   const recapSheet = XLSX.utils.json_to_sheet(recapRows);
-  recapSheet['!cols'] = [{ wch: 26 }, { wch: 12 }, { wch: 14 }];
+  recapSheet["!cols"] = [{ wch: 26 }, { wch: 12 }, { wch: 14 }];
 
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, recapSheet, 'Rekap Ukuran');
-  XLSX.utils.book_append_sheet(workbook, detailSheet, 'Detail Pesanan');
+  XLSX.utils.book_append_sheet(workbook, recapSheet, "Rekap Ukuran");
+  XLSX.utils.book_append_sheet(workbook, detailSheet, "Detail Pesanan");
   XLSX.writeFile(workbook, `pesanan-kawan-pelarian${fileSuffix(batchLabel)}-${Date.now()}.xlsx`);
 }
 
 export async function exportOrdersToPDF(allOrders: AdminOrder[], batchLabel?: string) {
-  const { default: jsPDF } = await import('jspdf');
-  const autoTable = (await import('jspdf-autotable')).default;
+  const { default: jsPDF } = await import("jspdf");
+  const autoTable = (await import("jspdf-autotable")).default;
 
-  const orders = allOrders.filter((order) => order.status !== 'REJECTED');
+  const orders = allOrders.filter((order) => order.status !== "REJECTED");
   const doc = new jsPDF();
 
   const totalOrders = orders.length;
@@ -116,49 +138,60 @@ export async function exportOrdersToPDF(allOrders: AdminOrder[], batchLabel?: st
   const { rows: sizeRows, totalUnit } = buildSizeRecap(orders);
 
   doc.setFontSize(14);
-  doc.text(withBatch('Rekap Pesanan - Kawan Pelarian', batchLabel), 14, 15);
+  doc.text(withBatch("Rekap Pesanan - Kawan Pelarian", batchLabel), 14, 15);
   doc.setFontSize(9);
   doc.setTextColor(120);
-  doc.text(`Diekspor: ${new Date().toLocaleString('id-ID')}`, 14, 21);
+  doc.text(`Diekspor: ${new Date().toLocaleString("id-ID")}`, 14, 21);
 
   doc.setFontSize(10);
   doc.setTextColor(40);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont("helvetica", "bold");
   doc.text(`Total Pesanan: ${totalOrders}`, 14, 28);
   doc.text(`Total Pemesan: ${uniqueBuyers} orang`, 90, 28);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont("helvetica", "normal");
 
   // Tabel 1: Rekap Ukuran - ini bagian yang dikirim ke konveksi
   doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Rekap Ukuran (Buat Konveksi)', 14, 38);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont("helvetica", "bold");
+  doc.text("Rekap Ukuran (Buat Konveksi)", 14, 38);
+  doc.setFont("helvetica", "normal");
 
   autoTable(doc, {
     startY: 42,
-    head: [['Produk', 'Ukuran', 'Jumlah']],
-    body: [...sizeRows.map((row) => [row.produk, row.ukuran, String(row.jumlah)]), ['', 'TOTAL', String(totalUnit)]],
+    head: [["Produk", "Ukuran", "Jumlah"]],
+    body: [
+      ...sizeRows.map((row) => [row.produk, row.ukuran, String(row.jumlah)]),
+      ["", "TOTAL", String(totalUnit)],
+    ],
     styles: { fontSize: 8, cellPadding: 3 },
     headStyles: { fillColor: [22, 35, 73] },
     didParseCell: (data) => {
       if (data.row.index === sizeRows.length) {
-        data.cell.styles.fontStyle = 'bold';
+        data.cell.styles.fontStyle = "bold";
       }
     },
   });
 
   // Tabel 2: Detail Pesanan - buat referensi siapa pesan apa
-  const afterRecapY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+  const afterRecapY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
+    .finalY;
 
   doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Detail Pesanan', 14, afterRecapY + 10);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont("helvetica", "bold");
+  doc.text("Detail Pesanan", 14, afterRecapY + 10);
+  doc.setFont("helvetica", "normal");
 
   autoTable(doc, {
     startY: afterRecapY + 14,
-    head: [['Pemesan', 'No. HP', 'Item', 'Total', 'Status', 'Tanggal']],
-    body: orders.map((order) => [exportName(order.member.name), order.member.phone ?? '-', summarizeItems(order), `Rp${order.totalAmount.toLocaleString('id-ID')}`, statusLabel[order.status], formatDate(order.createdAt)]),
+    head: [["Pemesan", "No. HP", "Item", "Total", "Status", "Tanggal"]],
+    body: orders.map((order) => [
+      exportName(order.member.name),
+      order.member.phone ?? "-",
+      summarizeItems(order),
+      `Rp${order.totalAmount.toLocaleString("id-ID")}`,
+      statusLabel[order.status],
+      formatDate(order.createdAt),
+    ]),
     styles: { fontSize: 8, cellPadding: 3 },
     headStyles: { fillColor: [22, 35, 73] },
     columnStyles: { 2: { cellWidth: 55 } },
@@ -168,27 +201,30 @@ export async function exportOrdersToPDF(allOrders: AdminOrder[], batchLabel?: st
 }
 
 export async function exportSizeRecapToPDF(orders: AdminOrder[], batchLabel?: string) {
-  const { default: jsPDF } = await import('jspdf');
-  const autoTable = (await import('jspdf-autotable')).default;
+  const { default: jsPDF } = await import("jspdf");
+  const autoTable = (await import("jspdf-autotable")).default;
 
   const doc = new jsPDF();
   const { rows, totalUnit } = buildSizeRecap(orders);
 
   doc.setFontSize(14);
-  doc.text(withBatch('Rekap Ukuran Konveksi - Kawan Pelarian', batchLabel), 14, 15);
+  doc.text(withBatch("Rekap Ukuran Konveksi - Kawan Pelarian", batchLabel), 14, 15);
   doc.setFontSize(9);
   doc.setTextColor(120);
-  doc.text(`Diekspor: ${new Date().toLocaleString('id-ID')}`, 14, 21);
+  doc.text(`Diekspor: ${new Date().toLocaleString("id-ID")}`, 14, 21);
   doc.setTextColor(40);
 
   autoTable(doc, {
     startY: 27,
-    head: [['Produk', 'Ukuran', 'Jumlah']],
-    body: [...rows.map((r) => [r.produk, r.ukuran, String(r.jumlah)]), ['', 'TOTAL', String(totalUnit)]],
+    head: [["Produk", "Ukuran", "Jumlah"]],
+    body: [
+      ...rows.map((r) => [r.produk, r.ukuran, String(r.jumlah)]),
+      ["", "TOTAL", String(totalUnit)],
+    ],
     styles: { fontSize: 9, cellPadding: 3 },
     headStyles: { fillColor: [22, 35, 73] },
     didParseCell: (data) => {
-      if (data.row.index === rows.length) data.cell.styles.fontStyle = 'bold';
+      if (data.row.index === rows.length) data.cell.styles.fontStyle = "bold";
     },
   });
 
@@ -196,14 +232,26 @@ export async function exportSizeRecapToPDF(orders: AdminOrder[], batchLabel?: st
 }
 
 export async function exportSizeRecapToWord(orders: AdminOrder[], batchLabel?: string) {
-  const { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, WidthType, AlignmentType, ShadingType, BorderStyle } = await import('docx');
+  const {
+    Document,
+    Packer,
+    Paragraph,
+    Table,
+    TableRow,
+    TableCell,
+    TextRun,
+    WidthType,
+    AlignmentType,
+    ShadingType,
+    BorderStyle,
+  } = await import("docx");
 
   const { rows, totalUnit } = buildSizeRecap(orders);
 
   // Samakan dengan gaya PDF: Helvetica/Arial, judul 14pt, teks tabel 9pt,
   // header gelap (#162349), baris selang-seling abu muda, tanpa garis tepi.
-  const FONT = 'Arial';
-  const noBorder = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+  const FONT = "Arial";
+  const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
   const borders = {
     top: noBorder,
     bottom: noBorder,
@@ -211,10 +259,17 @@ export async function exportSizeRecapToWord(orders: AdminOrder[], batchLabel?: s
     right: noBorder,
   };
 
-  const cell = (text: string, opts: { bold?: boolean; header?: boolean; right?: boolean; fill?: string } = {}) =>
+  const cell = (
+    text: string,
+    opts: { bold?: boolean; header?: boolean; right?: boolean; fill?: string } = {}
+  ) =>
     new TableCell({
       borders,
-      shading: opts.header ? { type: ShadingType.CLEAR, fill: '162349', color: 'auto' } : opts.fill ? { type: ShadingType.CLEAR, fill: opts.fill, color: 'auto' } : undefined,
+      shading: opts.header
+        ? { type: ShadingType.CLEAR, fill: "162349", color: "auto" }
+        : opts.fill
+          ? { type: ShadingType.CLEAR, fill: opts.fill, color: "auto" }
+          : undefined,
       margins: { top: 85, bottom: 85, left: 85, right: 85 },
       children: [
         new Paragraph({
@@ -224,7 +279,7 @@ export async function exportSizeRecapToWord(orders: AdminOrder[], batchLabel?: s
               text,
               font: FONT,
               bold: opts.bold || opts.header,
-              color: opts.header ? 'FFFFFF' : '282828',
+              color: opts.header ? "FFFFFF" : "282828",
               size: 18,
             }),
           ],
@@ -232,7 +287,7 @@ export async function exportSizeRecapToWord(orders: AdminOrder[], batchLabel?: s
       ],
     });
 
-  const STRIPE = 'F5F5F5';
+  const STRIPE = "F5F5F5";
 
   const table = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
@@ -247,18 +302,26 @@ export async function exportSizeRecapToWord(orders: AdminOrder[], batchLabel?: s
     rows: [
       new TableRow({
         tableHeader: true,
-        children: [cell('Produk', { header: true }), cell('Ukuran', { header: true }), cell('Jumlah', { header: true, right: true })],
+        children: [
+          cell("Produk", { header: true }),
+          cell("Ukuran", { header: true }),
+          cell("Jumlah", { header: true, right: true }),
+        ],
       }),
       ...rows.map((r, idx) => {
         const fill = idx % 2 === 1 ? STRIPE : undefined;
         return new TableRow({
-          children: [cell(r.produk, { fill }), cell(r.ukuran, { fill }), cell(String(r.jumlah), { fill, right: true })],
+          children: [
+            cell(r.produk, { fill }),
+            cell(r.ukuran, { fill }),
+            cell(String(r.jumlah), { fill, right: true }),
+          ],
         });
       }),
       new TableRow({
         children: [
-          cell('', { bold: true, fill: rows.length % 2 === 1 ? STRIPE : undefined }),
-          cell('TOTAL', { bold: true, fill: rows.length % 2 === 1 ? STRIPE : undefined }),
+          cell("", { bold: true, fill: rows.length % 2 === 1 ? STRIPE : undefined }),
+          cell("TOTAL", { bold: true, fill: rows.length % 2 === 1 ? STRIPE : undefined }),
           cell(String(totalUnit), {
             bold: true,
             right: true,
@@ -283,7 +346,7 @@ export async function exportSizeRecapToWord(orders: AdminOrder[], batchLabel?: s
             spacing: { after: 60 },
             children: [
               new TextRun({
-                text: withBatch('Rekap Ukuran Konveksi - Kawan Pelarian', batchLabel),
+                text: withBatch("Rekap Ukuran Konveksi - Kawan Pelarian", batchLabel),
                 font: FONT,
                 size: 28,
               }),
@@ -293,9 +356,9 @@ export async function exportSizeRecapToWord(orders: AdminOrder[], batchLabel?: s
             spacing: { after: 240 },
             children: [
               new TextRun({
-                text: `Diekspor: ${new Date().toLocaleString('id-ID')}`,
+                text: `Diekspor: ${new Date().toLocaleString("id-ID")}`,
                 font: FONT,
-                color: '787878',
+                color: "787878",
                 size: 18,
               }),
             ],
@@ -308,7 +371,7 @@ export async function exportSizeRecapToWord(orders: AdminOrder[], batchLabel?: s
 
   const blob = await Packer.toBlob(doc);
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = `rekap-konveksi${fileSuffix(batchLabel)}-${Date.now()}.docx`;
   document.body.appendChild(a);
