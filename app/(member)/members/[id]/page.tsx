@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, ExternalLink, EyeOff } from 'lucide-react';
 import { useMemberProfile } from '@/hooks/use-members';
 import { toTitleCase } from '@/lib/format-name';
@@ -17,6 +17,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function MemberProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError } = useMemberProfile(id);
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (window.history.length > 1) router.back();
+    else router.push('/members');
+  };
 
   if (isLoading) {
     return (
@@ -50,10 +56,10 @@ export default function MemberProfilePage() {
 
   return (
     <div className="mx-auto max-w-md space-y-6 px-4 py-6">
-      <Link href="/members" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+      <button type="button" onClick={handleBack} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft size={14} />
-        Semua member
-      </Link>
+        Kembali
+      </button>
 
       {member.isSelf && member.isProfileHidden && (
         <div className="flex items-start gap-3 rounded-xl border border-border bg-muted p-3">
