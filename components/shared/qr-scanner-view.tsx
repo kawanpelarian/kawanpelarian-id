@@ -1,12 +1,13 @@
 // components/shared/qr-scanner-view.tsx
-'use client';
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import jsQR from 'jsqr';
-import { Camera, CheckCircle2, Loader2, XCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { toTitleCase } from '@/lib/format-name';
-import { useScanCheckIn, type ScanResult } from '@/hooks/use-scan';
+import { useCallback, useEffect, useRef, useState } from "react";
+import jsQR from "jsqr";
+import { Camera, CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { toTitleCase } from "@/lib/format-name";
+import { useScanCheckIn, type ScanResult } from "@/hooks/use-scan";
 
 export function QrScannerView() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -34,10 +35,10 @@ export function QrScannerView() {
         setResult(data);
         if (navigator.vibrate) navigator.vibrate(data.ok ? 120 : [80, 60, 80]);
       } catch {
-        setResult({ ok: false, code: 'NETWORK', message: 'Koneksi bermasalah, coba scan lagi' });
+        setResult({ ok: false, code: "NETWORK", message: "Koneksi bermasalah, coba scan lagi" });
       }
     },
-    [scan],
+    [scan]
   );
 
   const tick = useCallback(() => {
@@ -50,12 +51,12 @@ export function QrScannerView() {
       canvas.width = width;
       canvas.height = height;
 
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
       if (ctx) {
         ctx.drawImage(video, 0, 0, width, height);
         const code = jsQR(ctx.getImageData(0, 0, width, height).data, width, height, {
-          inversionAttempts: 'dontInvert',
+          inversionAttempts: "dontInvert",
         });
 
         if (code?.data) {
@@ -71,13 +72,13 @@ export function QrScannerView() {
     setCameraError(null);
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      setCameraError('Browser tidak mendukung kamera, atau halaman tidak memakai HTTPS');
+      setCameraError("Browser tidak mendukung kamera, atau halaman tidak memakai HTTPS");
       return;
     }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' } },
+        video: { facingMode: { ideal: "environment" } },
         audio: false,
       });
 
@@ -90,7 +91,7 @@ export function QrScannerView() {
 
       frameRef.current = requestAnimationFrame(tick);
     } catch {
-      setCameraError('Akses kamera ditolak. Izinkan kamera di pengaturan browser lalu coba lagi');
+      setCameraError("Akses kamera ditolak. Izinkan kamera di pengaturan browser lalu coba lagi");
     }
   }, [tick]);
 
@@ -110,7 +111,9 @@ export function QrScannerView() {
         <video ref={videoRef} playsInline muted className="h-full w-full object-cover" />
         <canvas ref={canvasRef} className="hidden" />
 
-        {!cameraError && !result && <div className="pointer-events-none absolute inset-8 rounded-xl border-2 border-white/70" />}
+        {!cameraError && !result && (
+          <div className="pointer-events-none absolute inset-8 rounded-xl border-2 border-white/70" />
+        )}
 
         {scan.isPending && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
@@ -129,26 +132,41 @@ export function QrScannerView() {
         )}
       </div>
 
-      {result ? (
-        <div className={result.ok ? 'space-y-3 rounded-xl border border-green-500/40 bg-green-500/10 p-4' : 'space-y-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4'}>
-          <div className="flex items-start gap-3">
-            {result.ok ? <CheckCircle2 className="mt-0.5 shrink-0 text-green-600" size={22} /> : <XCircle className="mt-0.5 shrink-0 text-destructive" size={22} />}
+      <p className="text-center text-sm text-muted-foreground">Arahkan kamera ke QR check-in peserta</p>
 
-            <div className="min-w-0 space-y-0.5">
-              {result.member && <p className="truncate text-base font-semibold text-primaryBlack dark:text-primaryWhite">{toTitleCase(result.member.name)}</p>}
-              <p className="text-sm text-muted-foreground">{result.ok ? `Check-in berhasil, hadir ke-${result.attendedCount}` : result.message}</p>
-              {result.eventName && <p className="truncate text-xs text-muted-foreground">{result.eventName}</p>}
-              {result.ok && result.newBadge && <p className="text-xs font-medium text-green-700 dark:text-green-400">Lencana baru: {result.newBadge.name}</p>}
+      <Dialog open={result !== null} onOpenChange={(next) => !next && scanNext()}>
+        <DialogContent className="max-w-sm">
+          {result && (
+            <div className="flex flex-col items-center gap-3 py-4 text-center">
+              {result.ok ? (
+                <CheckCircle2 className="text-green-600" size={56} />
+              ) : (
+                <XCircle className="text-destructive" size={56} />
+              )}
+
+              {result.member && (
+                <DialogTitle className="text-lg">{toTitleCase(result.member.name)}</DialogTitle>
+              )}
+              {!result.member && <DialogTitle>Scan Gagal</DialogTitle>}
+
+              <DialogDescription>
+                {result.ok ? `Check-in berhasil, hadir ke-${result.attendedCount}` : result.message}
+              </DialogDescription>
+
+              {result.eventName && <p className="text-xs text-muted-foreground">{result.eventName}</p>}
+              {result.ok && result.newBadge && (
+                <p className="text-xs font-medium text-green-700 dark:text-green-400">
+                  Lencana baru: {result.newBadge.name}
+                </p>
+              )}
+
+              <Button type="button" className="mt-2 w-full" onClick={scanNext}>
+                Scan Berikutnya
+              </Button>
             </div>
-          </div>
-
-          <Button type="button" className="w-full" onClick={scanNext}>
-            Scan Berikutnya
-          </Button>
-        </div>
-      ) : (
-        <p className="text-center text-sm text-muted-foreground">Arahkan kamera ke QR check-in peserta</p>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

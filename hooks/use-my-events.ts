@@ -34,10 +34,11 @@ async function fetchMyEvents(): Promise<MyEventsResponse> {
   return res.json();
 }
 
-export function useMyEvents() {
+export function useMyEvents(refetchInterval: number | false = false) {
   return useQuery({
     queryKey: ['my-events'],
     queryFn: fetchMyEvents,
+    refetchInterval,
   });
 }
 
