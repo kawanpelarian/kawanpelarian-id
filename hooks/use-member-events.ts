@@ -25,6 +25,7 @@ export interface PublicEventDetail extends PublicEvent {
   myPaymentRejectReason: string | null;
   myProofUrl: string | null;
   checkInOpen: boolean;
+  checkInToken: string | null;
   route: {
     points: unknown;
     distanceKm: number;

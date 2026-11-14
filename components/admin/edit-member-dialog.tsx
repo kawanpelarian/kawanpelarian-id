@@ -1,3 +1,4 @@
+// components/admin/edit-member-dialog.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -7,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useUpdateMember, type MemberListRow } from '@/hooks/use-admin-members-list';
 
 interface EditMemberDialogProps {
@@ -19,13 +21,21 @@ export function EditMemberDialog({ member }: EditMemberDialogProps) {
     name: member.name,
     email: member.email,
     phone: member.phone,
+    birthDate: member.birthDate ? member.birthDate.slice(0, 10) : '',
+    isStaff: member.isStaff,
   });
 
   const updateMember = useUpdateMember();
 
   useEffect(() => {
     if (open) {
-      setForm({ name: member.name, email: member.email, phone: member.phone });
+      setForm({
+        name: member.name,
+        email: member.email,
+        phone: member.phone,
+        birthDate: member.birthDate ? member.birthDate.slice(0, 10) : '',
+        isStaff: member.isStaff,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -68,6 +78,19 @@ export function EditMemberDialog({ member }: EditMemberDialogProps) {
           <div className="space-y-2">
             <Label htmlFor="edit-phone">Nomor HP / WhatsApp</Label>
             <Input id="edit-phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="edit-birthDate">Tanggal Lahir</Label>
+            <Input id="edit-birthDate" type="date" value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} />
+          </div>
+
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-3">
+            <div className="space-y-0.5">
+              <Label htmlFor="edit-isStaff">Panitia</Label>
+              <p className="text-xs text-muted-foreground">Bisa memindai QR check-in peserta</p>
+            </div>
+            <Switch id="edit-isStaff" checked={form.isStaff} onCheckedChange={(checked) => setForm({ ...form, isStaff: checked })} />
           </div>
 
           <Button type="button" className="w-full" onClick={handleSubmit} disabled={updateMember.isPending}>

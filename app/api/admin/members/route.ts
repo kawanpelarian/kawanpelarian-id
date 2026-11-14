@@ -1,3 +1,4 @@
+// app/api/admin/members/route.ts
 import { NextResponse } from 'next/server';
 import { randomBytes } from 'crypto';
 import bcrypt from 'bcrypt';
@@ -26,6 +27,8 @@ export async function GET(request: Request) {
       name: true,
       email: true,
       phone: true,
+      birthDate: true,
+      isStaff: true,
       createdAt: true,
       _count: { select: { registrations: true } },
     },

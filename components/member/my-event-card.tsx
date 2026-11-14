@@ -4,17 +4,19 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Clock, Loader2, CheckCircle2, ChevronRight, XCircle } from 'lucide-react';
+import { MapPin, Clock, Loader2, ChevronRight, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useScanAccess } from '@/hooks/use-scan';
+import { CheckInQr } from '@/components/member/check-in-qr';
 import type { MyRegistration } from '@/hooks/use-my-events';
 
 interface MyEventCardProps {
   registration: MyRegistration;
+  onCancel?: (registrationId: string) => void;
   onCheckIn?: (eventId: string) => void;
   isCheckingIn?: boolean;
-  onCancel?: (registrationId: string) => void;
   isCancelling?: boolean;
 }
 
@@ -24,12 +26,16 @@ const statusConfig = {
   ABSENT: { label: 'Tidak Hadir', variant: 'outline' as const },
 };
 
-export function MyEventCard({ registration, onCheckIn, isCheckingIn, onCancel, isCancelling }: MyEventCardProps) {
+export function MyEventCard({ registration, onCancel, onCheckIn, isCheckingIn, isCancelling }: MyEventCardProps) {
   const { event, status } = registration;
   // Status check-in dihitung di server (lib/check-in-window.ts) supaya
   // konsisten dengan validasi saat check-in, tidak tergantung jam perangkat
+  const { data: isStaff } = useScanAccess();
   const canCheckIn = registration.checkInOpen;
-  const canCancel = status === 'REGISTERED' && !registration.started;
+  const isPaid = event.price > 0;
+  const paymentStatus = registration.paymentStatus;
+  const paymentLocked = isPaid && paymentStatus === 'VERIFIED';
+  const canCancel = status === 'REGISTERED' && !registration.started && !paymentLocked;
   const extendedUntilLabel =
     canCheckIn && event.checkInUntil
       ? new Date(event.checkInUntil).toLocaleString('id-ID', {
@@ -40,7 +46,8 @@ export function MyEventCard({ registration, onCheckIn, isCheckingIn, onCancel, i
           timeZone: 'Asia/Jakarta',
         })
       : null;
-  const config = statusConfig[status];
+  const config =
+    isPaid && paymentStatus === 'PENDING' ? { label: 'Menunggu Verifikasi', variant: 'outline' as const } : isPaid && paymentStatus === 'REJECTED' ? { label: 'Pembayaran Ditolak', variant: 'destructive' as const } : statusConfig[status];
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   return (
@@ -79,18 +86,15 @@ export function MyEventCard({ registration, onCheckIn, isCheckingIn, onCancel, i
           <ChevronRight size={16} />
         </Button>
 
+        {isPaid && paymentStatus === 'REJECTED' && <p className="text-xs text-destructive">Bukti transfer ditolak, buka detail event untuk upload ulang.</p>}
+
         {extendedUntilLabel && <p className="text-xs text-muted-foreground">Check-in dibuka sampai {extendedUntilLabel} WIB</p>}
 
-        {canCheckIn && onCheckIn && (
+        {canCheckIn && registration.checkInToken && !isStaff && <CheckInQr token={registration.checkInToken} eventName={event.name} />}
+
+        {canCheckIn && isStaff && onCheckIn && (
           <Button type="button" className="w-full" onClick={() => onCheckIn(event.id)} disabled={isCheckingIn}>
-            {isCheckingIn ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <>
-                <CheckCircle2 size={16} />
-                Check-in Sekarang
-              </>
-            )}
+            {isCheckingIn ? <Loader2 size={16} className="animate-spin" /> : 'Check-in Sekarang (Panitia)'}
           </Button>
         )}
 

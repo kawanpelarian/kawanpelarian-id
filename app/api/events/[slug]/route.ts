@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { isCheckInOpen } from '@/lib/check-in-window';
+import { createCheckInToken } from '@/lib/checkin-qr';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +38,7 @@ export async function GET(request: Request, { params }: Params) {
   let myPaymentStatus: string | null = null;
   let myPaymentRejectReason: string | null = null;
   let myProofUrl: string | null = null;
+  let checkInToken: string | null = null;
 
   if (session?.user.role === 'MEMBER') {
     const existingRegistration = await prisma.registration.findUnique({
@@ -57,10 +59,11 @@ export async function GET(request: Request, { params }: Params) {
       myPaymentRejectReason = existingRegistration.paymentRejectReason;
       myProofUrl = existingRegistration.proofUrl;
       checkInOpen = existingRegistration.status === 'REGISTERED' && existingRegistration.paymentStatus === 'VERIFIED' && isCheckInOpen(event);
+      checkInToken = checkInOpen ? createCheckInToken(existingRegistration.id) : null;
     }
   }
 
   return NextResponse.json({
-    event: { ...event, isRegisteredByMe, myRegistrationId, myRegistrationStatus, myPaymentStatus, myPaymentRejectReason, myProofUrl, checkInOpen },
+    event: { ...event, isRegisteredByMe, myRegistrationId, myRegistrationStatus, myPaymentStatus, myPaymentRejectReason, myProofUrl, checkInOpen, checkInToken },
   });
 }

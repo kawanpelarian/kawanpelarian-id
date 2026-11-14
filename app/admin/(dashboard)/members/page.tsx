@@ -1,3 +1,4 @@
+// app/admin/(dashboard)/members/page.tsx
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -130,6 +131,7 @@ export default function AdminMembersPage() {
                     <TableCell className="font-medium text-primaryBlack dark:text-primaryWhite">
                       <div className="flex items-center gap-2">
                         {member.name}
+                        {member.isStaff && <Badge variant="secondary">Panitia</Badge>}
                         {isDuplicateName && (
                           <Badge variant="outline" className="gap-1 text-amber-600 dark:text-amber-500">
                             <AlertTriangle size={11} />

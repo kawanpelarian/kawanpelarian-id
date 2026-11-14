@@ -145,7 +145,8 @@ exports.Prisma.MemberScalarFieldEnum = {
   tiktok: 'tiktok',
   isProfileHidden: 'isProfileHidden',
   shareCode: 'shareCode',
-  isSharingEnabled: 'isSharingEnabled'
+  isSharingEnabled: 'isSharingEnabled',
+  isStaff: 'isStaff'
 };
 
 exports.Prisma.ProfileViewScalarFieldEnum = {

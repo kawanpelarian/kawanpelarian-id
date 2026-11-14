@@ -50,6 +50,7 @@ model Member {
   isProfileHidden Boolean @default(false)
   shareCode        String?  @unique
   isSharingEnabled Boolean  @default(false)
+  isStaff          Boolean  @default(false)
 
   registrations Registration[]
   orders        Order[]

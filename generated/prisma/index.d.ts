@@ -3473,6 +3473,7 @@ export namespace Prisma {
     isProfileHidden: boolean | null
     shareCode: string | null
     isSharingEnabled: boolean | null
+    isStaff: boolean | null
   }
 
   export type MemberMaxAggregateOutputType = {
@@ -3492,6 +3493,7 @@ export namespace Prisma {
     isProfileHidden: boolean | null
     shareCode: string | null
     isSharingEnabled: boolean | null
+    isStaff: boolean | null
   }
 
   export type MemberCountAggregateOutputType = {
@@ -3511,6 +3513,7 @@ export namespace Prisma {
     isProfileHidden: number
     shareCode: number
     isSharingEnabled: number
+    isStaff: number
     _all: number
   }
 
@@ -3532,6 +3535,7 @@ export namespace Prisma {
     isProfileHidden?: true
     shareCode?: true
     isSharingEnabled?: true
+    isStaff?: true
   }
 
   export type MemberMaxAggregateInputType = {
@@ -3551,6 +3555,7 @@ export namespace Prisma {
     isProfileHidden?: true
     shareCode?: true
     isSharingEnabled?: true
+    isStaff?: true
   }
 
   export type MemberCountAggregateInputType = {
@@ -3570,6 +3575,7 @@ export namespace Prisma {
     isProfileHidden?: true
     shareCode?: true
     isSharingEnabled?: true
+    isStaff?: true
     _all?: true
   }
 
@@ -3662,6 +3668,7 @@ export namespace Prisma {
     isProfileHidden: boolean
     shareCode: string | null
     isSharingEnabled: boolean
+    isStaff: boolean
     _count: MemberCountAggregateOutputType | null
     _min: MemberMinAggregateOutputType | null
     _max: MemberMaxAggregateOutputType | null
@@ -3698,6 +3705,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: boolean
     isSharingEnabled?: boolean
+    isStaff?: boolean
     registrations?: boolean | Member$registrationsArgs<ExtArgs>
     orders?: boolean | Member$ordersArgs<ExtArgs>
     resetTokens?: boolean | Member$resetTokensArgs<ExtArgs>
@@ -3722,6 +3730,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: boolean
     isSharingEnabled?: boolean
+    isStaff?: boolean
   }, ExtArgs["result"]["member"]>
 
   export type MemberSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3741,6 +3750,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: boolean
     isSharingEnabled?: boolean
+    isStaff?: boolean
   }, ExtArgs["result"]["member"]>
 
   export type MemberSelectScalar = {
@@ -3760,9 +3770,10 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: boolean
     isSharingEnabled?: boolean
+    isStaff?: boolean
   }
 
-  export type MemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "phone" | "password" | "birthDate" | "createdAt" | "updatedAt" | "bio" | "avatarUrl" | "instagram" | "strava" | "tiktok" | "isProfileHidden" | "shareCode" | "isSharingEnabled", ExtArgs["result"]["member"]>
+  export type MemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "phone" | "password" | "birthDate" | "createdAt" | "updatedAt" | "bio" | "avatarUrl" | "instagram" | "strava" | "tiktok" | "isProfileHidden" | "shareCode" | "isSharingEnabled" | "isStaff", ExtArgs["result"]["member"]>
   export type MemberInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     registrations?: boolean | Member$registrationsArgs<ExtArgs>
     orders?: boolean | Member$ordersArgs<ExtArgs>
@@ -3798,6 +3809,7 @@ export namespace Prisma {
       isProfileHidden: boolean
       shareCode: string | null
       isSharingEnabled: boolean
+      isStaff: boolean
     }, ExtArgs["result"]["member"]>
     composites: {}
   }
@@ -4241,6 +4253,7 @@ export namespace Prisma {
     readonly isProfileHidden: FieldRef<"Member", 'Boolean'>
     readonly shareCode: FieldRef<"Member", 'String'>
     readonly isSharingEnabled: FieldRef<"Member", 'Boolean'>
+    readonly isStaff: FieldRef<"Member", 'Boolean'>
   }
     
 
@@ -19389,7 +19402,8 @@ export namespace Prisma {
     tiktok: 'tiktok',
     isProfileHidden: 'isProfileHidden',
     shareCode: 'shareCode',
-    isSharingEnabled: 'isSharingEnabled'
+    isSharingEnabled: 'isSharingEnabled',
+    isStaff: 'isStaff'
   };
 
   export type MemberScalarFieldEnum = (typeof MemberScalarFieldEnum)[keyof typeof MemberScalarFieldEnum]
@@ -19807,6 +19821,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFilter<"Member"> | boolean
     shareCode?: StringNullableFilter<"Member"> | string | null
     isSharingEnabled?: BoolFilter<"Member"> | boolean
+    isStaff?: BoolFilter<"Member"> | boolean
     registrations?: RegistrationListRelationFilter
     orders?: OrderListRelationFilter
     resetTokens?: PasswordResetTokenListRelationFilter
@@ -19830,6 +19845,7 @@ export namespace Prisma {
     isProfileHidden?: SortOrder
     shareCode?: SortOrderInput | SortOrder
     isSharingEnabled?: SortOrder
+    isStaff?: SortOrder
     registrations?: RegistrationOrderByRelationAggregateInput
     orders?: OrderOrderByRelationAggregateInput
     resetTokens?: PasswordResetTokenOrderByRelationAggregateInput
@@ -19856,6 +19872,7 @@ export namespace Prisma {
     tiktok?: StringNullableFilter<"Member"> | string | null
     isProfileHidden?: BoolFilter<"Member"> | boolean
     isSharingEnabled?: BoolFilter<"Member"> | boolean
+    isStaff?: BoolFilter<"Member"> | boolean
     registrations?: RegistrationListRelationFilter
     orders?: OrderListRelationFilter
     resetTokens?: PasswordResetTokenListRelationFilter
@@ -19879,6 +19896,7 @@ export namespace Prisma {
     isProfileHidden?: SortOrder
     shareCode?: SortOrderInput | SortOrder
     isSharingEnabled?: SortOrder
+    isStaff?: SortOrder
     _count?: MemberCountOrderByAggregateInput
     _max?: MemberMaxOrderByAggregateInput
     _min?: MemberMinOrderByAggregateInput
@@ -19904,6 +19922,7 @@ export namespace Prisma {
     isProfileHidden?: BoolWithAggregatesFilter<"Member"> | boolean
     shareCode?: StringNullableWithAggregatesFilter<"Member"> | string | null
     isSharingEnabled?: BoolWithAggregatesFilter<"Member"> | boolean
+    isStaff?: BoolWithAggregatesFilter<"Member"> | boolean
   }
 
   export type ProfileViewWhereInput = {
@@ -20868,6 +20887,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: string | null
     isSharingEnabled?: boolean
+    isStaff?: boolean
     registrations?: RegistrationCreateNestedManyWithoutMemberInput
     orders?: OrderCreateNestedManyWithoutMemberInput
     resetTokens?: PasswordResetTokenCreateNestedManyWithoutMemberInput
@@ -20891,6 +20911,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: string | null
     isSharingEnabled?: boolean
+    isStaff?: boolean
     registrations?: RegistrationUncheckedCreateNestedManyWithoutMemberInput
     orders?: OrderUncheckedCreateNestedManyWithoutMemberInput
     resetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -20914,6 +20935,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
     registrations?: RegistrationUpdateManyWithoutMemberNestedInput
     orders?: OrderUpdateManyWithoutMemberNestedInput
     resetTokens?: PasswordResetTokenUpdateManyWithoutMemberNestedInput
@@ -20937,6 +20959,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
     registrations?: RegistrationUncheckedUpdateManyWithoutMemberNestedInput
     orders?: OrderUncheckedUpdateManyWithoutMemberNestedInput
     resetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -20960,6 +20983,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: string | null
     isSharingEnabled?: boolean
+    isStaff?: boolean
   }
 
   export type MemberUpdateManyMutationInput = {
@@ -20979,6 +21003,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MemberUncheckedUpdateManyInput = {
@@ -20998,6 +21023,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ProfileViewCreateInput = {
@@ -22101,6 +22127,7 @@ export namespace Prisma {
     isProfileHidden?: SortOrder
     shareCode?: SortOrder
     isSharingEnabled?: SortOrder
+    isStaff?: SortOrder
   }
 
   export type MemberMaxOrderByAggregateInput = {
@@ -22120,6 +22147,7 @@ export namespace Prisma {
     isProfileHidden?: SortOrder
     shareCode?: SortOrder
     isSharingEnabled?: SortOrder
+    isStaff?: SortOrder
   }
 
   export type MemberMinOrderByAggregateInput = {
@@ -22139,6 +22167,7 @@ export namespace Prisma {
     isProfileHidden?: SortOrder
     shareCode?: SortOrder
     isSharingEnabled?: SortOrder
+    isStaff?: SortOrder
   }
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -24108,6 +24137,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: string | null
     isSharingEnabled?: boolean
+    isStaff?: boolean
     registrations?: RegistrationCreateNestedManyWithoutMemberInput
     orders?: OrderCreateNestedManyWithoutMemberInput
     resetTokens?: PasswordResetTokenCreateNestedManyWithoutMemberInput
@@ -24130,6 +24160,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: string | null
     isSharingEnabled?: boolean
+    isStaff?: boolean
     registrations?: RegistrationUncheckedCreateNestedManyWithoutMemberInput
     orders?: OrderUncheckedCreateNestedManyWithoutMemberInput
     resetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -24168,6 +24199,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
     registrations?: RegistrationUpdateManyWithoutMemberNestedInput
     orders?: OrderUpdateManyWithoutMemberNestedInput
     resetTokens?: PasswordResetTokenUpdateManyWithoutMemberNestedInput
@@ -24190,6 +24222,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
     registrations?: RegistrationUncheckedUpdateManyWithoutMemberNestedInput
     orders?: OrderUncheckedUpdateManyWithoutMemberNestedInput
     resetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -24212,6 +24245,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: string | null
     isSharingEnabled?: boolean
+    isStaff?: boolean
     registrations?: RegistrationCreateNestedManyWithoutMemberInput
     orders?: OrderCreateNestedManyWithoutMemberInput
     profileViews?: ProfileViewCreateNestedManyWithoutMemberInput
@@ -24234,6 +24268,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: string | null
     isSharingEnabled?: boolean
+    isStaff?: boolean
     registrations?: RegistrationUncheckedCreateNestedManyWithoutMemberInput
     orders?: OrderUncheckedCreateNestedManyWithoutMemberInput
     profileViews?: ProfileViewUncheckedCreateNestedManyWithoutMemberInput
@@ -24272,6 +24307,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
     registrations?: RegistrationUpdateManyWithoutMemberNestedInput
     orders?: OrderUpdateManyWithoutMemberNestedInput
     profileViews?: ProfileViewUpdateManyWithoutMemberNestedInput
@@ -24294,6 +24330,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
     registrations?: RegistrationUncheckedUpdateManyWithoutMemberNestedInput
     orders?: OrderUncheckedUpdateManyWithoutMemberNestedInput
     profileViews?: ProfileViewUncheckedUpdateManyWithoutMemberNestedInput
@@ -24478,6 +24515,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: string | null
     isSharingEnabled?: boolean
+    isStaff?: boolean
     orders?: OrderCreateNestedManyWithoutMemberInput
     resetTokens?: PasswordResetTokenCreateNestedManyWithoutMemberInput
     profileViews?: ProfileViewCreateNestedManyWithoutMemberInput
@@ -24500,6 +24538,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: string | null
     isSharingEnabled?: boolean
+    isStaff?: boolean
     orders?: OrderUncheckedCreateNestedManyWithoutMemberInput
     resetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutMemberInput
     profileViews?: ProfileViewUncheckedCreateNestedManyWithoutMemberInput
@@ -24583,6 +24622,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
     orders?: OrderUpdateManyWithoutMemberNestedInput
     resetTokens?: PasswordResetTokenUpdateManyWithoutMemberNestedInput
     profileViews?: ProfileViewUpdateManyWithoutMemberNestedInput
@@ -24605,6 +24645,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
     orders?: OrderUncheckedUpdateManyWithoutMemberNestedInput
     resetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutMemberNestedInput
     profileViews?: ProfileViewUncheckedUpdateManyWithoutMemberNestedInput
@@ -25262,6 +25303,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: string | null
     isSharingEnabled?: boolean
+    isStaff?: boolean
     registrations?: RegistrationCreateNestedManyWithoutMemberInput
     resetTokens?: PasswordResetTokenCreateNestedManyWithoutMemberInput
     profileViews?: ProfileViewCreateNestedManyWithoutMemberInput
@@ -25284,6 +25326,7 @@ export namespace Prisma {
     isProfileHidden?: boolean
     shareCode?: string | null
     isSharingEnabled?: boolean
+    isStaff?: boolean
     registrations?: RegistrationUncheckedCreateNestedManyWithoutMemberInput
     resetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutMemberInput
     profileViews?: ProfileViewUncheckedCreateNestedManyWithoutMemberInput
@@ -25346,6 +25389,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
     registrations?: RegistrationUpdateManyWithoutMemberNestedInput
     resetTokens?: PasswordResetTokenUpdateManyWithoutMemberNestedInput
     profileViews?: ProfileViewUpdateManyWithoutMemberNestedInput
@@ -25368,6 +25412,7 @@ export namespace Prisma {
     isProfileHidden?: BoolFieldUpdateOperationsInput | boolean
     shareCode?: NullableStringFieldUpdateOperationsInput | string | null
     isSharingEnabled?: BoolFieldUpdateOperationsInput | boolean
+    isStaff?: BoolFieldUpdateOperationsInput | boolean
     registrations?: RegistrationUncheckedUpdateManyWithoutMemberNestedInput
     resetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutMemberNestedInput
     profileViews?: ProfileViewUncheckedUpdateManyWithoutMemberNestedInput

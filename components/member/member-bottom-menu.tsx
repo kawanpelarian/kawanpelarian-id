@@ -5,9 +5,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X, CalendarCheck2, History, Search, Home, ShoppingBag, Shirt, Users, UserRound } from 'lucide-react';
+import { Menu, X, CalendarCheck2, History, Search, Home, ShoppingBag, Shirt, Users, UserRound, ScanLine } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { cn } from '@/lib/utils';
+import { useScanAccess } from '@/hooks/use-scan';
 
 const navItems = [
   { title: 'Beranda', url: '/', icon: Home },
@@ -20,9 +21,13 @@ const navItems = [
   { title: 'Profil', url: '/profile', icon: UserRound },
 ];
 
+const scanItem = { title: 'Pemindai', url: '/scan', icon: ScanLine };
+
 export function MemberBottomMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { data: canScan } = useScanAccess();
+  const items = canScan ? [...navItems, scanItem] : navItems;
 
   return (
     <>
@@ -50,7 +55,7 @@ export function MemberBottomMenu() {
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
 
               <div className="grid grid-cols-4 gap-2">
-                {navItems.map((item) => {
+                {items.map((item) => {
                   const isActive = pathname === item.url;
                   return (
                     <Link

@@ -1,3 +1,4 @@
+// app/api/admin/members/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -14,6 +15,8 @@ const updateMemberSchema = z.object({
     .string()
     .min(10, 'Nomor HP minimal 10 digit')
     .regex(/^[0-9+]+$/, 'Nomor HP hanya boleh berisi angka'),
+  birthDate: z.string().optional().or(z.literal('')),
+  isStaff: z.boolean().optional(),
 });
 
 export async function DELETE(request: Request, { params }: Params) {
@@ -51,7 +54,7 @@ export async function PATCH(request: Request, { params }: Params) {
       return NextResponse.json({ error: 'Data tidak valid', details: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { name, email, phone } = parsed.data;
+    const { name, email, phone, birthDate, isStaff } = parsed.data;
 
     const emailTaken = await prisma.member.findFirst({
       where: { email, NOT: { id } },
@@ -63,12 +66,25 @@ export async function PATCH(request: Request, { params }: Params) {
 
     const member = await prisma.member.update({
       where: { id },
-      data: { name, email, phone },
+      data: {
+        name,
+        email,
+        phone,
+        isStaff,
+        birthDate: birthDate ? new Date(birthDate) : birthDate === '' ? null : undefined,
+      },
     });
 
     return NextResponse.json({
       message: 'Data member berhasil diperbarui',
-      member: { id: member.id, name: member.name, email: member.email, phone: member.phone },
+      member: {
+        id: member.id,
+        name: member.name,
+        email: member.email,
+        phone: member.phone,
+        birthDate: member.birthDate,
+        isStaff: member.isStaff,
+      },
     });
   } catch (error) {
     console.error('Update member error:', error);

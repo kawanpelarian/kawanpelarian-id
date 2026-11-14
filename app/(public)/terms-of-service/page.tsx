@@ -35,7 +35,10 @@ export default function TermsOfServicePage() {
           <ul className="ml-4 list-disc space-y-1">
             <li>Biaya pendaftaran tiap event berbeda-beda. Ada event gratis dan ada yang berbayar, dan harganya tertera di halaman event</li>
             <li>Kuota terbatas, pendaftaran ditutup otomatis kalau udah penuh</li>
-            <li>Check-in dibuka 30 menit sebelum event dimulai, langsung di lokasi lewat halaman event atau &quot;Event Saya&quot;. Waktu check-in bisa diperpanjang panitia sesuai kebutuhan</li>
+            <li>
+              Check-in dilakukan di lokasi dengan menunjukkan QR dari halaman event atau &quot;Event Saya&quot; ke panitia. QR bisa dipindai mulai 30 menit sebelum event sampai 2 jam setelah event dimulai, dan waktunya bisa diperpanjang
+              panitia sesuai kebutuhan
+            </li>
             <li>Kami berhak membatalkan/mengubah jadwal event dengan pemberitahuan sebelumnya</li>
           </ul>
         </section>

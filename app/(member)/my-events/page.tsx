@@ -19,9 +19,7 @@ export default function MyEventsPage() {
     checkIn.mutate(eventId, {
       onSuccess: (result) => {
         toast.success('Check-in berhasil, selamat berlari!');
-        if (result.newBadge) {
-          toast.success(`Lencana baru: ${result.newBadge.name}! Cek di halaman Profil.`);
-        }
+        if (result.newBadge) toast.success(`Lencana baru: ${result.newBadge.name}`);
       },
       onError: (error) => toast.error(error.message),
     });

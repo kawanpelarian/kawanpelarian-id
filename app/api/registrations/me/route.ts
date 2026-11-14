@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { getEventDateTime } from '@/lib/get-event-datetime';
 import { isCheckInOpen } from '@/lib/check-in-window';
+import { createCheckInToken } from '@/lib/checkin-qr';
 
 // Wajib, biar Next.js gak nge-cache response ini. Meskipun route ini manggil
 // auth() (yang baca cookie session), Next.js gak selalu otomatis ngedetect
@@ -29,11 +30,16 @@ export async function GET() {
   // Gabungin eventDate + eventTime biar perbandingan jam-nya akurat, bukan
   // cuma bandingin tanggal doang (yang bikin event hari ini keanggep lewat
   // begitu lewat tengah malam, padahal jam eventnya belum lewat)
-  const withFlags = registrations.map((r) => ({
-    ...r,
-    started: getEventDateTime(r.event.eventDate, r.event.eventTime) < now,
-    checkInOpen: r.status === 'REGISTERED' && r.paymentStatus === 'VERIFIED' && isCheckInOpen(r.event, now),
-  }));
+  const withFlags = registrations.map((r) => {
+    const checkInOpen = r.status === 'REGISTERED' && r.paymentStatus === 'VERIFIED' && isCheckInOpen(r.event, now);
+
+    return {
+      ...r,
+      started: getEventDateTime(r.event.eventDate, r.event.eventTime) < now,
+      checkInOpen,
+      checkInToken: checkInOpen ? createCheckInToken(r.id) : null,
+    };
+  });
 
   // Event yang sudah mulai tapi check-in-nya masih dibuka tetap tampil di
   // "Mendatang", supaya member yang baru sampai / selesai lari masih bisa absen

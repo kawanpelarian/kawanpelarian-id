@@ -1,3 +1,4 @@
+// hooks/use-admin-members-list.ts
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export interface MemberListRow {
@@ -6,6 +7,7 @@ export interface MemberListRow {
   email: string;
   phone: string;
   birthDate: string | null;
+  isStaff: boolean;
   createdAt: string;
   _count: { registrations: number };
 }
@@ -47,11 +49,11 @@ export function useUpdateMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, name, email, phone, birthDate }: { id: string; name: string; email: string; phone: string; birthDate?: string }) => {
+    mutationFn: async ({ id, name, email, phone, birthDate, isStaff }: { id: string; name: string; email: string; phone: string; birthDate?: string; isStaff?: boolean }) => {
       const res = await fetch(`/api/admin/members/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, birthDate }),
+        body: JSON.stringify({ name, email, phone, birthDate, isStaff }),
       });
 
       const data = await res.json();

@@ -9,6 +9,7 @@ export interface MyRegistration {
   paymentStatus: 'PENDING' | 'VERIFIED' | 'REJECTED';
   started: boolean;
   checkInOpen: boolean;
+  checkInToken: string | null;
   event: {
     id: string;
     name: string;
@@ -54,13 +55,13 @@ export function useCheckIn() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Gagal check-in');
       return {
-        registration: data.registration,
         attendedCount: data.attendedCount as number,
         newBadge: (data.newBadge ?? null) as { key: string; name: string } | null,
       };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-events'] });
+      queryClient.invalidateQueries({ queryKey: ['public-events'] });
       queryClient.invalidateQueries({ queryKey: ['my-badges'] });
     },
   });

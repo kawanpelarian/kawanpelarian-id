@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { CalendarDays, MapPin, Users, Clock, Loader2, CheckCircle2, BadgeCheck, UserCheck, Wallet, Hourglass, XCircle } from 'lucide-react';
+import { CalendarDays, MapPin, Users, Clock, Loader2, BadgeCheck, UserCheck, Wallet, Hourglass, XCircle } from 'lucide-react';
 import { getEventDateTime } from '@/lib/get-event-datetime';
 import { toTitleCase } from '@/lib/format-name';
 import { sanitizeHtml } from '@/lib/sanitize-html';
@@ -16,6 +16,8 @@ import { usePublicEventParticipants } from '@/hooks/use-public-event-participant
 import { AttendanceBadgeIcon } from '@/components/member/attendance-badge';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useScanAccess } from '@/hooks/use-scan';
+import { CheckInQr } from '@/components/member/check-in-qr';
 import { EventPaymentForm } from '@/components/public/event-payment-form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EventPageChrome } from '@/components/shared/event-page-chrome';
@@ -34,6 +36,7 @@ export function EventDetailClient() {
   const resubmitProof = useResubmitProof();
   const cancelRegistration = useCancelRegistration();
   const checkIn = useCheckIn();
+  const { data: isStaff } = useScanAccess();
 
   const handleCancel = () => {
     if (!event?.myRegistrationId) return;
@@ -50,8 +53,8 @@ export function EventDetailClient() {
 
     checkIn.mutate(event.id, {
       onSuccess: (result) => {
-        toast.success('Check-in berhasil! Selamat berlari 🏃');
-        if (result.newBadge) toast.success(`Lencana baru: ${result.newBadge.name} 🎉`);
+        toast.success('Check-in berhasil! Selamat berlari');
+        if (result.newBadge) toast.success(`Lencana baru: ${result.newBadge.name}`);
       },
       onError: (error) => toast.error(error.message),
     });
@@ -235,16 +238,11 @@ export function EventDetailClient() {
           </Button>
         )}
 
-        {session && event.checkInOpen && (
+        {session && event.checkInOpen && event.checkInToken && !isStaff && <CheckInQr token={event.checkInToken} eventName={event.name} />}
+
+        {session && event.checkInOpen && isStaff && (
           <Button type="button" size="lg" className="w-full" onClick={handleCheckIn} disabled={checkIn.isPending}>
-            {checkIn.isPending ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <>
-                <CheckCircle2 size={16} />
-                Check-in Sekarang
-              </>
-            )}
+            {checkIn.isPending ? <Loader2 size={16} className="animate-spin" /> : 'Check-in Sekarang (Panitia)'}
           </Button>
         )}
 

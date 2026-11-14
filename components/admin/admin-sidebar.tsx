@@ -1,7 +1,7 @@
 // components/admin/admin-sidebar.tsx
 'use client';
 
-import { LayoutDashboard, ShoppingBag, Package, CalendarDays, Users, UserCog, Images, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Package, CalendarDays, Users, UserCog, Images, ScanLine, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
@@ -13,6 +13,7 @@ const menuItems = [
   { title: 'Dashboard', url: '/admin/dashboard', icon: LayoutDashboard },
   { title: 'Event', url: '/admin/events', icon: CalendarDays },
   { title: 'Peserta', url: '/admin/participants', icon: Users },
+  { title: 'Pemindai', url: '/admin/scan', icon: ScanLine },
   { title: 'Member', url: '/admin/members', icon: UserCog },
   { title: 'Galeri', url: '/admin/gallery', icon: Images },
   { title: 'Produk', url: '/admin/products', icon: ShoppingBag },

@@ -1,3 +1,4 @@
+// proxy.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
@@ -6,7 +7,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isAdminRoute = pathname.startsWith('/admin') && pathname !== '/admin/login';
-  const isMemberRoute = pathname.startsWith('/profile') || pathname.startsWith('/my-events') || pathname.startsWith('/attendance') || pathname.startsWith('/members');
+  const isMemberRoute = pathname.startsWith('/profile') || pathname.startsWith('/my-events') || pathname.startsWith('/attendance') || pathname.startsWith('/scan');
 
   if (!isAdminRoute && !isMemberRoute) {
     return NextResponse.next();
@@ -34,5 +35,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/profile/:path*', '/my-events/:path*', '/attendance/:path*', '/members/:path*', '/member/:path*'],
+  matcher: ['/admin/:path*', '/profile/:path*', '/my-events/:path*', '/attendance/:path*', '/scan/:path*'],
 };
